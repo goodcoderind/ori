@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install:*)",
+      "Bash(python:*)",
+      "Bash(pytest:*)",
+      "Bash(timeout 4 uvicorn app.main:app:*)",
+      "Bash(gtimeout 4:*)",
+      "Bash(chmod +x:*)",
+      "Bash(python3:*)",
+      "Bash(bash:*)"
+    ]
+  }
+}

@@ -1,0 +1,267 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Description: >
+  ProSocratic Backend — FastAPI on AWS Lambda (Mangum) + DynamoDB.
+  Auth: X-User-Id header (UUID v4). No API Gateway; uses Lambda Function URL.
+
+# ── Parameters ────────────────────────────────────────────────────────────────
+
+Parameters:
+
+  Environment:
+    Type: String
+    Default: production
+    AllowedValues: [development, staging, production]
+    Description: Deployment environment tag.
+
+  MiniMaxApiKey:
+    Type: String
+    NoEcho: true
+    Description: >
+      MiniMax API key. Pass with --parameter-overrides or via AWS Secrets Manager.
+      Never commit a real key here.
+
+  MiniMaxModel:
+    Type: String
+    Default: "MiniMax-M2.5-highspeed"
+    Description: MiniMax model ID.
+
+  DashboardOrigin:
+    Type: String
+    Default: "https://prosocratic.ai"
+    Description: Allowed CORS origin for the web dashboard.
+
+  ExtensionDevMode:
+    Type: String
+    Default: "false"
+    AllowedValues: ["true", "false"]
+    Description: When true, allows any chrome-extension:// origin in CORS (dev only).
+
+  SessionTtlDays:
+    Type: Number
+    Default: 30
+    MinValue: 1
+    MaxValue: 365
+    Description: DynamoDB TTL for sessions and assessments (days).
+
+  LambdaMemoryMB:
+    Type: Number
+    Default: 1024
+    Description: Lambda memory in MB. Higher = faster cold-start; 1024 is a good tradeoff.
+
+# ── Globals ───────────────────────────────────────────────────────────────────
+
+Globals:
+  Function:
+    Runtime: python3.11
+    MemorySize: !Ref LambdaMemoryMB
+    # 45 s: MiniMax can take up to 20 s; leave headroom for DynamoDB + cold start.
+    Timeout: 120   # MiniMax-M2.5 reasoning model can take 15-25 s; floor is 90 s in client
+    # Tracing (X-Ray) — optional; adds a few ms overhead but greatly helps debugging.
+    # Tracing: Active
+    Environment:
+      Variables:
+        # ── App ──────────────────────────────────────────────────────────────
+        ENVIRONMENT:         !Ref Environment
+        DEBUG:               "false"
+        LOG_LEVEL:           "info"
+        API_VERSION:         "v1"
+        # ── CORS ─────────────────────────────────────────────────────────────
+        DASHBOARD_ORIGIN:    !Ref DashboardOrigin
+        EXTENSION_DEV_MODE:  !Ref ExtensionDevMode
+        # ── MiniMax ──────────────────────────────────────────────────────────
+        MINIMAX_API_KEY:     !Ref MiniMaxApiKey
+        MINIMAX_MODEL:       !Ref MiniMaxModel
+        MINIMAX_TEMPERATURE: "0.4"
+        MINIMAX_MAX_TOKENS:  "1024"
+        # Keep < Lambda Timeout (45s). MiniMax itself caps at 20 s internally.
+        MINIMAX_TIMEOUT_SECONDS: "20"
+        # ── DynamoDB ─────────────────────────────────────────────────────────
+        # Logical names are substituted at deploy time from the Table resource refs.
+        TABLE_USERS:       !Ref UsersTable
+        TABLE_SESSIONS:    !Ref SessionsTable
+        TABLE_ASSESSMENTS: !Ref AssessmentsTable
+        # ── Runtime flags ────────────────────────────────────────────────────
+        ENABLE_LAMBDA_MODE:         "true"
+        STORE_RAW_ANSWERS:          "false"   # must remain false; server raises if true
+        STORE_PAGE_CONTEXT:         "false"   # must remain false; server raises if true
+        SESSION_TTL_DAYS:           !Sub "${SessionTtlDays}"
+        RATE_LIMIT_REQUESTS_PER_MINUTE: "60"
+        LAMBDA_TIMEOUT_SECONDS:     "45"
+
+# ── Resources ─────────────────────────────────────────────────────────────────
+
+Resources:
+
+  # ── Lambda Function ──────────────────────────────────────────────────────────
+  # Mangum wraps the FastAPI ASGI app and translates Lambda events → ASGI scope.
+  # Entry point: app.main.handler  (the `handler = Mangum(app)` line).
+  #
+  # Cold-start notes:
+  #   - boto3 DynamoDB resource is created lazily on first request.
+  #   - httpx AsyncClient for MiniMax is shared across warm invocations.
+  #   - pydantic-settings loads .env once; subsequent calls use lru_cache.
+
+  ProSocraticFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "prosocratic-api-${Environment}"
+      CodeUri: .
+      Handler: app.main.handler
+      Description: ProSocratic FastAPI backend (Mangum ASGI adapter)
+      # IAM: DynamoDBCrudPolicy covers GetItem/PutItem/UpdateItem/DeleteItem/Query/Scan.
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref SessionsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AssessmentsTable
+      # Function URL: public HTTPS endpoint with no API Gateway overhead.
+      # Auth = NONE because application auth is handled by the X-User-Id header.
+      FunctionUrlConfig:
+        AuthType: NONE
+        Cors:
+          AllowCredentials: true
+          AllowHeaders:
+            - content-type
+            - x-user-id
+            - x-request-id
+            - authorization
+          AllowMethods:
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+            - OPTIONS
+          AllowOrigins:
+            - !Ref DashboardOrigin
+          ExposeHeaders:
+            - x-request-id
+          MaxAge: 600
+
+  # ── DynamoDB: Users ──────────────────────────────────────────────────────────
+  # PK: user_id (S)
+  # Stores: UserProfile — archetype, technique_stats, mastery_by_topic.
+  # DeletionPolicy: Retain prevents accidental data loss on stack delete/update.
+
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: !Sub "ProsocraticUsers-${Environment}"
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      AttributeDefinitions:
+        - AttributeName: user_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: user_id
+          KeyType: HASH
+      Tags:
+        - Key: Project
+          Value: ProSocratic
+        - Key: Environment
+          Value: !Ref Environment
+
+  # ── DynamoDB: Sessions ───────────────────────────────────────────────────────
+  # PK: user_id (S)   SK: session_id (S)
+  # Stores: SessionRecord — bounded events list (≤200), rolled_up_summary, flags.
+  # TTL: expires_at (Unix timestamp, set to SESSION_TTL_DAYS from now on write).
+
+  SessionsTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: !Sub "ProsocraticSessions-${Environment}"
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      AttributeDefinitions:
+        - AttributeName: user_id
+          AttributeType: S
+        - AttributeName: session_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: user_id
+          KeyType: HASH
+        - AttributeName: session_id
+          KeyType: RANGE
+      TimeToLiveSpecification:
+        AttributeName: expires_at
+        Enabled: true
+      Tags:
+        - Key: Project
+          Value: ProSocratic
+        - Key: Environment
+          Value: !Ref Environment
+
+  # ── DynamoDB: Assessments ────────────────────────────────────────────────────
+  # PK: user_id (S)   SK: probe_set_id (S)
+  # Stores: ProbeSet — recall/transfer probes, rubric, AttemptMeta (scores only).
+  # Privacy: raw answer_text is NEVER stored. Only score_0_1 + error_type + ts.
+  # TTL: expires_at set to SESSION_TTL_DAYS from creation.
+
+  AssessmentsTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: !Sub "ProsocraticAssessments-${Environment}"
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      AttributeDefinitions:
+        - AttributeName: user_id
+          AttributeType: S
+        - AttributeName: probe_set_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: user_id
+          KeyType: HASH
+        - AttributeName: probe_set_id
+          KeyType: RANGE
+      TimeToLiveSpecification:
+        AttributeName: expires_at
+        Enabled: true
+      Tags:
+        - Key: Project
+          Value: ProSocratic
+        - Key: Environment
+          Value: !Ref Environment
+
+# ── Outputs ───────────────────────────────────────────────────────────────────
+
+Outputs:
+
+  # SAM creates <FunctionLogicalId>Url resource when FunctionUrlConfig is present.
+  # The attribute FunctionUrl contains the HTTPS endpoint.
+  ApiBaseUrl:
+    Description: Lambda Function URL — use as the API base URL in clients.
+    Value: !GetAtt ProSocraticFunctionUrl.FunctionUrl
+    Export:
+      Name: !Sub "prosocratic-api-url-${Environment}"
+
+  FunctionArn:
+    Description: Lambda function ARN.
+    Value: !GetAtt ProSocraticFunction.Arn
+
+  UsersTableArn:
+    Value: !GetAtt UsersTable.Arn
+    Export:
+      Name: !Sub "prosocratic-users-table-${Environment}"
+
+  SessionsTableArn:
+    Value: !GetAtt SessionsTable.Arn
+    Export:
+      Name: !Sub "prosocratic-sessions-table-${Environment}"
+
+  AssessmentsTableArn:
+    Value: !GetAtt AssessmentsTable.Arn
+    Export:
+      Name: !Sub "prosocratic-assessments-table-${Environment}"
