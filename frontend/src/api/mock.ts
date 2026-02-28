@@ -1,0 +1,131 @@
+import type { DashboardSummary, SessionDetail, SessionListItem } from '../types/api';
+
+export const mockSummary: DashboardSummary = {
+  user_id: 'mock-user-0000',
+  focus_state_distribution: {
+    FLOW: 0.38,
+    CONFUSION: 0.22,
+    MIND_WANDER: 0.18,
+    INSIGHT: 0.10,
+    FRUSTRATION: 0.07,
+    BOREDOM: 0.05,
+  },
+  focus_heatmap: { morning: 0.52, afternoon: 0.44, evening: 0.71, night: 0.81 },
+  technique_success_rates: [
+    { technique_id: 'feynman', shown_count: 14, acceptance_rate: 0.86, success_rate: 0.82 },
+    { technique_id: 'modality_switching', shown_count: 10, acceptance_rate: 0.70, success_rate: 0.74 },
+    { technique_id: 'active_recall', shown_count: 8, acceptance_rate: 0.75, success_rate: 0.69 },
+    { technique_id: 'elaborative_interrogation', shown_count: 5, acceptance_rate: 0.60, success_rate: 0.61 },
+    { technique_id: 'pomodoro', shown_count: 12, acceptance_rate: 0.92, success_rate: 0.88 },
+  ],
+  mastery_by_topic: {
+    'Biology/ATP': { p_mastery: 0.72, last_probe_at: new Date(Date.now() - 86400000).toISOString(), next_probe_at: new Date(Date.now() + 3600000).toISOString() },
+    'Calculus/Limits': { p_mastery: 0.55, last_probe_at: new Date(Date.now() - 172800000).toISOString(), next_probe_at: new Date(Date.now() + 86400000).toISOString() },
+    'ML/Backprop': { p_mastery: 0.43, last_probe_at: null, next_probe_at: null },
+    'Chemistry/Bonds': { p_mastery: 0.29, last_probe_at: null, next_probe_at: null },
+  },
+  upcoming_reviews: [
+    { topic_label: 'Biology/ATP', p_mastery: 0.72, next_probe_at: new Date(Date.now() + 3600000).toISOString(), overdue: false },
+    { topic_label: 'Calculus/Limits', p_mastery: 0.55, next_probe_at: new Date(Date.now() - 600000).toISOString(), overdue: true },
+    { topic_label: 'ML/Backprop', p_mastery: 0.43, next_probe_at: new Date(Date.now() + 172800000).toISOString(), overdue: false },
+  ],
+};
+
+export const mockSessions: SessionListItem[] = [
+  {
+    session_id: 'sess_001',
+    started_at: new Date(Date.now() - 7200000).toISOString(),
+    ended_at: new Date(Date.now() - 4320000).toISOString(),
+    duration_seconds: 2880,
+    topic_label: 'Biology/ATP',
+    n_nudges: 4,
+    avg_confidence: 0.82,
+    avg_microassess_score: 0.71,
+  },
+  {
+    session_id: 'sess_002',
+    started_at: new Date(Date.now() - 90000000).toISOString(),
+    ended_at: new Date(Date.now() - 86400000).toISOString(),
+    duration_seconds: 3600,
+    topic_label: 'Calculus/Limits',
+    n_nudges: 2,
+    avg_confidence: 0.65,
+    avg_microassess_score: null,
+  },
+  {
+    session_id: 'sess_003',
+    started_at: new Date(Date.now() - 180000000).toISOString(),
+    ended_at: new Date(Date.now() - 176400000).toISOString(),
+    duration_seconds: 1800,
+    topic_label: 'ML/Backprop',
+    n_nudges: 6,
+    avg_confidence: 0.91,
+    avg_microassess_score: 0.55,
+  },
+  {
+    session_id: 'sess_004',
+    started_at: new Date(Date.now() - 259200000).toISOString(),
+    ended_at: new Date(Date.now() - 255600000).toISOString(),
+    duration_seconds: 2400,
+    topic_label: 'Chemistry/Bonds',
+    n_nudges: 3,
+    avg_confidence: 0.58,
+    avg_microassess_score: null,
+  },
+  {
+    session_id: 'sess_005',
+    started_at: new Date(Date.now() - 345600000).toISOString(),
+    ended_at: new Date(Date.now() - 342000000).toISOString(),
+    duration_seconds: 2100,
+    topic_label: 'Biology/ATP',
+    n_nudges: 5,
+    avg_confidence: 0.75,
+    avg_microassess_score: 0.68,
+  },
+  {
+    session_id: 'sess_006',
+    started_at: new Date(Date.now() - 432000000).toISOString(),
+    ended_at: new Date(Date.now() - 428400000).toISOString(),
+    duration_seconds: 2700,
+    topic_label: 'Calculus/Limits',
+    n_nudges: 1,
+    avg_confidence: 0.88,
+    avg_microassess_score: 0.72,
+  },
+];
+
+export const mockSessionDetail: SessionDetail = {
+  session_id: 'sess_001',
+  user_id: 'mock-user-0000',
+  started_at: new Date(Date.now() - 7200000).toISOString(),
+  ended_at: new Date(Date.now() - 4320000).toISOString(),
+  duration_seconds: 2880,
+  topic_label: 'Biology/ATP',
+  n_nudges: 4,
+  avg_confidence: 0.82,
+  avg_microassess_score: 0.71,
+  event_timeline: [
+    { ts: new Date(Date.now() - 7200000).toISOString(), state_label: 'FLOW', confidence: 0.85, ori_state: 'IDLE', suggestion_type: 'NONE', suggestion_id: null },
+    { ts: new Date(Date.now() - 6900000).toISOString(), state_label: 'CONFUSION', confidence: 0.91, ori_state: 'HAS_SOMETHING', suggestion_type: 'TECHNIQUE', suggestion_id: 'feynman' },
+    { ts: new Date(Date.now() - 6600000).toISOString(), state_label: 'INSIGHT', confidence: 0.94, ori_state: 'INSIGHT', suggestion_type: 'NONE', suggestion_id: null },
+    { ts: new Date(Date.now() - 6300000).toISOString(), state_label: 'FLOW', confidence: 0.88, ori_state: 'IDLE', suggestion_type: 'NONE', suggestion_id: null },
+    { ts: new Date(Date.now() - 5400000).toISOString(), state_label: 'MIND_WANDER', confidence: 0.76, ori_state: 'NOTICING', suggestion_type: 'BREAK', suggestion_id: null },
+  ],
+  assessments: [
+    {
+      probe_set_id: 'ps-001',
+      topic_label: 'Biology/ATP',
+      recall_probe: 'In your own words, what is ATP and what role does it play in the cell?',
+      transfer_probe: 'A muscle cell doubles its workload. How does ATP production respond?',
+      attempts: [
+        { ts: new Date(Date.now() - 6500000).toISOString(), probe_type: 'recall', score_0_1: 0.6, error_type: 'vague' },
+        { ts: new Date(Date.now() - 6480000).toISOString(), probe_type: 'transfer', score_0_1: 0.8, error_type: 'correct' },
+      ],
+    },
+  ],
+  rolled_up_summary: {
+    total_events: 5,
+    by_state: { FLOW: 2, CONFUSION: 1, INSIGHT: 1, MIND_WANDER: 1 },
+    suggestions_shown: 2,
+  },
+};

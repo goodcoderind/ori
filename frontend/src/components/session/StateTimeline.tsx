@@ -100,6 +100,6 @@ export function StateTimeline({ session }: StateTimelineProps) {
           })}
         </div>
       </div>
-    </div>
+      </div>
   );
 }

@@ -1,18 +1,17 @@
 import { apiClient } from './client';
 import { getUserId } from '../utils/getUserId';
-import { API } from '@shared/apiConfig';
-import type { UserProfile } from '@shared/apiTypes';
+import type { UserProfile } from '../types/api';
 
 const uid = () => getUserId();
 
 export const updateProfile = (data: UserProfile) =>
-  apiClient.put(API.PROFILE(uid()), data); // responds 204
+  apiClient.put(`/v1/profiles/${uid()}`, data); // responds 204
 
 export const deleteProfile = () =>
-  apiClient.delete(API.PROFILE(uid())); // responds 204 — WIPES ALL DATA
+  apiClient.delete(`/v1/profiles/${uid()}`); // responds 204 — WIPES ALL DATA
 
 export const exportProfile = async () => {
-  const res = await apiClient.get(API.PROFILE_EXPORT(uid()), {
+  const res = await apiClient.get(`/v1/profiles/${uid()}/export`, {
     responseType: 'blob',
   });
   const url = URL.createObjectURL(res.data);

@@ -29,10 +29,10 @@ export function FocusHeatmap({ summary, compact = false }: FocusHeatmapProps) {
     <div className="w-full h-full flex flex-col">
       <div className="flex-shrink-0 mb-3">
         <div className="text-sm font-medium uppercase tracking-[0.16em] text-textMuted">
-          Time of day
-        </div>
+            Time of day
+          </div>
         <div className={`mt-0.5 font-serifDisplay ${compact ? 'text-lg' : 'text-xl'} italic text-textPrimary`}>
-          When your focus tends to hold
+            When your focus tends to hold
         </div>
       </div>
       <div className={`flex-1 min-h-0 ${compact ? 'h-32' : 'h-56'}`}>

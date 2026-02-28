@@ -112,7 +112,7 @@ export function HeroStrip({ summary, sessions }: HeroStripProps) {
           transition={{ duration: 0.5 }}
           className="bento-cell bento-cell-indigo p-5"
         >
-          <div className="mb-2 font-monoData text-5xl font-light text-accentPrimary">
+          <div className="mb-2 font-monoData text-5xl font-light text-textPrimary">
             <CountUp end={stats.totalSessions} />
           </div>
           <div className="mb-2 text-sm font-medium uppercase tracking-wider text-textMuted">
@@ -132,7 +132,7 @@ export function HeroStrip({ summary, sessions }: HeroStripProps) {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="bento-cell bento-cell-teal p-5"
         >
-          <div className="mb-2 font-monoData text-5xl font-light text-accentTeal">
+          <div className="mb-2 font-monoData text-5xl font-light text-textPrimary">
             <CountUp end={Math.round(stats.totalHours * 10) / 10} />
           </div>
           <div className="mb-2 text-sm font-medium uppercase tracking-wider text-textMuted">
@@ -152,7 +152,7 @@ export function HeroStrip({ summary, sessions }: HeroStripProps) {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="bento-cell bento-cell-blue p-5"
         >
-          <div className="mb-2 font-monoData text-5xl font-light text-accentPrimary">
+          <div className="mb-2 font-monoData text-5xl font-light text-textPrimary">
             <CountUp end={Math.round(stats.avgFlowRatio * 100)} />%
           </div>
           <div className="mb-2 text-sm font-medium uppercase tracking-wider text-textMuted">

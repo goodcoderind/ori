@@ -38,12 +38,12 @@ export function TopBar() {
         >
           <div className="flex flex-col gap-0.5">
             <span className="text-xs font-medium text-textMuted leading-tight">
-              {greeting} Shamam.
-            </span>
+          {greeting} Shamam.
+        </span>
             <span className="font-serifDisplay text-xl italic leading-tight text-textPrimary">
               Here&apos;s how you&apos;ve been learning.
-            </span>
-          </div>
+        </span>
+      </div>
         </motion.header>
       )}
     </AnimatePresence>

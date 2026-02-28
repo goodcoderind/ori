@@ -130,13 +130,12 @@ body::after {
   color: #2DD4BF;
 }
 
-/* 🟡 Techniques - Yellow Highlight */
+/* 🟡 Techniques Card - Yellow Highlight */
 .bento-cell-amber {
   background: linear-gradient(135deg, #1F2937 0%, #374151 100%);
   border: 1px solid rgba(251, 191, 36, 0.4);
 }
 
-<<<<<<< HEAD
 .bento-cell-amber .text-accentPrimary,
 .bento-cell-amber [class*="text-accent"] {
   color: #FBBF24;
@@ -226,7 +225,6 @@ body::after {
   width: 100%;
   height: 100%;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 1rem 1rem 0.5rem 1rem;
@@ -256,8 +254,6 @@ body::after {
   transform: scale(1.03);
 }
 
-=======
->>>>>>> d81562fe67a177f293965a8a33cd5d6f58974f46
 /* Smooth scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

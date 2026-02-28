@@ -75,7 +75,7 @@ export function Onboarding() {
       {/* Content area - centered */}
       <div className="flex min-h-screen items-center justify-center px-6 py-12">
         <div className="mx-auto w-full max-w-2xl pt-24">
-          <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait">
           {step === 'topic' && (
             <motion.div
               key="topic"
@@ -211,7 +211,7 @@ export function Onboarding() {
               </p>
             </motion.div>
           )}
-          </AnimatePresence>
+        </AnimatePresence>
         </div>
       </div>
     </div>

@@ -3,38 +3,45 @@ module.exports = {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
-      colors: {
-        // Poppy Modern AI Palette - Dark Neutral Base
-        background: '#0B1220',
-        surface: '#111827',
-        surfaceRaised: '#141B2D',
-        borderSubtle: 'rgba(97, 165, 250, 0.2)',
-        
-        // Text colors
-        textPrimary: '#F1F5F9',
-        textMuted: '#94A3B8',
-        textFaint: '#64748B',
-        
-        // Core Accent Family (Blue)
-        accentPrimary: '#61A5FA',
-        accentHover: '#3B82F6',
-        accentDeep: '#1D4ED8',
-        accentGlow: 'rgba(97, 165, 250, 0.35)',
-        
-        // Differentiated Accents
-        accentPurple: '#A78BFA',
-        accentTeal: '#2DD4BF',
-        accentYellow: '#FBBF24',
-        accentYellowBright: '#FACC15',
-        
-        // Legacy aliases for compatibility
-        accentIndigo: '#61A5FA',
-        accentAmber: '#FBBF24',
-        accentViolet: '#A78BFA',
-        accentBlue: '#61A5FA',
-        accentMint: '#2DD4BF',
-        accentRed: '#EF4444',
-      },
+        colors: {
+          // Poppy Modern AI Palette - Dark Neutral Base
+          background: '#0B1220',
+          surface: '#111827',
+          surfaceRaised: '#141B2D',
+          borderSubtle: 'rgba(97, 165, 250, 0.2)',
+          
+          // Text colors
+          textPrimary: '#F1F5F9',
+          textMuted: '#94A3B8',
+          textFaint: '#64748B',
+          
+          // Core Accent Family (Blue)
+          accentPrimary: '#61A5FA',
+          accentHover: '#3B82F6',
+          accentDeep: '#1D4ED8',
+          accentGlow: 'rgba(97, 165, 250, 0.35)',
+          
+          // Differentiated Accents
+          accentPurple: '#A78BFA',
+          accentTeal: '#2DD4BF',
+          accentYellow: '#FBBF24',
+          accentYellowBright: '#FACC15',
+          
+          // Legacy aliases for compatibility
+          accentIndigo: '#61A5FA',
+          accentAmber: '#FBBF24',
+          accentViolet: '#A78BFA',
+          accentBlue: '#61A5FA',
+          accentMint: '#2DD4BF',
+          accentRed: '#EF4444',
+          
+          // Bento grid cell colors
+          bento1: 'rgba(97, 165, 250, 0.1)',
+          bento2: 'rgba(167, 139, 250, 0.1)',
+          bento3: 'rgba(45, 212, 191, 0.1)',
+          bento4: 'rgba(251, 191, 36, 0.1)',
+          bento5: 'rgba(97, 165, 250, 0.08)',
+        },
       fontFamily: {
         serifDisplay: ['"Instrument Serif"', 'serif'],
         sansUi: ['"DM Sans"', 'system-ui', 'sans-serif'],
