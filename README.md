@@ -1,27 +1,54 @@
-# ProSocratic
+# Ori
 
-A privacy-first AI study companion. A Chrome extension observes how you study and surfaces a Socratic coaching overlay ("Ori"), a FastAPI backend drives LLM logic and stores session data in DynamoDB, and a React dashboard surfaces learning analytics — all connected through a shared TypeScript contract.
+> **It's not about what you learn. It's about how you learn.**
 
----
-
-## Repository structure
-
-```
-hte_v1/
-├── backend/              # FastAPI backend — LLM services, session logic, DynamoDB
-├── extension-overlay/    # Chrome Extension (Manifest V3) — Ori overlay, behavioral sensing
-├── frontend/             # React dashboard — analytics, weekly review, learner DNA
-├── shared/               # Shared TypeScript types and API route constants
-└── docs/                 # Monorepo integration guide
-```
+Five undergrads flew from the UAE to Hong Kong to build this. We felt this problem ourselves. We knew we had something real.
 
 ---
 
-## How the three pieces fit together
+## The Problem
+
+You've been there. It's 2am. You've read the same page four times. You've highlighted half the textbook. You asked ChatGPT, got an answer, nodded, moved on, and still blanked on exam day.
+
+This isn't a laziness problem. It's a design problem.
+
+Every study tool ever built operates on the same broken assumption: the student knows what they need to ask. They arrive with a question, the tool answers it, transaction complete. But the most important gaps in understanding are never the things students ask about. They're the things students don't even know to ask. The prerequisite they skipped three chapters ago. The edge case that shows up on every exam and never appears in their notes.
+
+No existing tool goes looking for those gaps. **Ori does.**
+
+There's a second failure too: every tool treats every student identically. The visual thinker gets walls of text. The student three minutes from a genuine insight gets interrupted with an explanation they didn't need. Learning tools aren't personalised. They're just fast.
+
+---
+
+## The Solution
+
+**Ori** is a browser extension paired with a personal analytics dashboard that understands *how* you study, not just *what*.
+
+At the heart of it is a small companion that lives quietly in the corner of whatever you're reading: Wikipedia, YouTube, PDFs, anything. Ori's default state is asleep. He doesn't blink at you, doesn't interrupt, doesn't demand attention. He wakes up only when he has something genuinely worth saying, because a tool that knows when to stay quiet is just as powerful as one that speaks.
+
+Behind Ori, the system does something no other tool does: it reads the signals already present in *how* you interact with a page. Scroll speed. Section revisits. Typing rhythm. Pause duration. From these behavioural proxies — no camera, no microphone, no biometrics, ever — Ori classifies your cognitive state in real time and surfaces the right intervention at the right moment.
+
+When confusion is detected, Ori wakes and suggests the Feynman Technique. When you've been stuck in text for four minutes, he offers a diagram instead. When you're in flow, he stays asleep and lets you cook.
+
+Over time, Ori builds a living portrait of you as a learner: which techniques work for you, which subjects drain you, what you've genuinely understood versus what you've only memorised. This portrait lives in your personal dashboard, updating after every session.
+
+The goal isn't to need Ori forever. It's to become the kind of learner who doesn't.
+
+---
+
+## Who It's For
+
+- **Students** who work hard but don't know *how* they learn best
+- **Self-learners** grinding through dense material without a teacher in the room
+- **Anyone** who has ever re-read a chapter three times and still failed the test
+
+---
+
+## How it works
 
 ```
 Chrome Extension (extension-overlay)
-  │  behavioral telemetry every 30 s (scroll, keystrokes, idle gaps)
+  │  behavioural telemetry every 30 s (scroll velocity, keystroke rate, idle gaps)
   │  chat messages, micro-assessment answers
   │  POST /v1/session/*, /v1/questions/*, /v1/microassess/*
   ▼
@@ -31,10 +58,29 @@ FastAPI Backend (backend)
   ▼
 React Dashboard (frontend)
      GET /v1/dashboard/*, /v1/profiles/*
-     reads the same backend; user identified by shared UUID in X-User-Id header
+     reads the same backend; user identified by a shared UUID in X-User-Id header
 ```
 
+The extension collects **behavioural signals only**: numeric aggregates sent every 30 seconds. No content, no raw keystrokes, no screenshots.
+
+These signals feed a local classifier that outputs a cognitive state (`FLOW`, `CONFUSION`, `FRUSTRATION`, `MIND_WANDER`, `OVERLOAD`, `BOREDOM`, `INSIGHT`) with a confidence score. The backend Policy Engine takes that state and deterministically scores 9 study techniques (Feynman, Active Recall, Modality Switching, Elaborative Interrogation, Pomodoro, Analogy Generation, Error Analysis, Chunking, Interleaving) against a composite function of cluster affinity for the current state, personal historical success rate, context fit, and fatigue adjustment.
+
+When a technique is selected, MiniMax generates the Socratic question or micro-assessment probe grounded in the current page content, which is sent ephemerally and never stored.
+
 The `shared/` module is imported by both the extension and dashboard via the `@shared` Vite/TypeScript path alias and is the single source of truth for API route paths and TypeScript payload types.
+
+---
+
+## Repository structure
+
+```
+ori/
+├── backend/              # FastAPI backend — LLM services, session logic, DynamoDB
+├── extension-overlay/    # Chrome Extension (Manifest V3) — Ori overlay, behavioural sensing
+├── frontend/             # React dashboard — analytics, weekly review, learner DNA
+├── shared/               # Shared TypeScript types and API route constants
+└── docs/                 # Monorepo integration guide
+```
 
 ---
 
@@ -48,23 +94,17 @@ The `shared/` module is imported by both the extension and dashboard via the `@s
 | Data validation | **Pydantic v2** + **pydantic-settings** |
 | HTTP client | **httpx** (async, shared connection pool, exponential-backoff retries on 429/5xx) |
 | LLM | **MiniMax API** (`MiniMax-M2.5-highspeed`) |
-| Database | **AWS DynamoDB** via **boto3** — 3 tables: `ProsocraticUsers`, `ProsocraticSessions`, `ProsocraticAssessments` |
+| Policy Engine | Pure Python deterministic scorer — no LLM on the hot path |
+| Database | **AWS DynamoDB** via **boto3** — 3 tables: Users, Sessions, Assessments |
 | Serverless adapter | **Mangum** — wraps FastAPI as an AWS Lambda handler |
 | Testing | **pytest** + **pytest-asyncio**, 361 tests |
 | Linting / formatting | **ruff**, **black** |
 
-**How MiniMax is used:**
-
-- `question_engine.py` — given a page context snippet and a student question, calls MiniMax to produce a direct Socratic answer + a follow-up question; also identifies adjacent concepts not yet covered and generates probe questions for them
-- `assessment_scorer.py` — rubric-based scoring of free-text answers; raw answer text is passed to MiniMax for scoring then discarded and never stored
+**How MiniMax is used specifically:**
+- `question_engine.py` — Socratic answer + follow-up question; adjacent-concept probe generation
+- `assessment_scorer.py` — rubric-based free-text scoring; raw answer is discarded after scoring, never stored
 - `socratic_engine.py` — grounded Socratic question generation from page headings and text snippets
-- `technique_scorer.py` — composite scoring across 9 learning techniques (Pomodoro, Feynman, Active Recall, Spaced Repetition, Strategic Rest, etc.)
-- `policy_engine.py` — pure-Python decision tree mapping cognitive state → intervention suggestion (~0 ms, no LLM call)
-
-**Privacy invariants enforced at startup (server raises `ValueError` if violated):**
-- `STORE_RAW_ANSWERS=false` — answers are scored then discarded
-- `STORE_PAGE_CONTEXT=false` — page content is used only inside LLM prompts, never persisted
-- `PrivacyFilter` strips sensitive fields from all log records before output
+- `policy_engine.py` — pure-Python decision tree (state → intervention); zero LLM latency
 
 ### Chrome Extension (`extension-overlay/`)
 
@@ -73,19 +113,18 @@ The `shared/` module is imported by both the extension and dashboard via the `@s
 | Build | **Vite 6** + **CRXJS Vite plugin** (Manifest V3, hot reload in dev) |
 | UI | **React 18** + **TypeScript** |
 | Styling | **Tailwind CSS v3** |
-| Animations | **Framer Motion** (spring physics — stiffness 400, damping 30) |
+| Animations | **Framer Motion** (spring physics) |
 | State | **Zustand v5** |
 | Local storage | **Dexie.js v4** (IndexedDB — learner profile, session cache) |
 | Mascot animations | **lottie-react** |
 | Style isolation | **Shadow DOM** — overlay never touches host-page styles |
 
-**Architecture:**
-- `background/index.ts` — Service Worker: routes Chrome messages between content script and backend, batches and sends telemetry
-- `content/index.tsx` — injected into every tab; mounts the overlay inside a Shadow DOM root, extracts page context
-- `overlay/store/overlayStore.ts` — Zustand store; all data flow is gated behind a `sessionActive` boolean (no backend traffic until the user clicks "Start Studying")
-- `overlay/hooks/useBehavioralSensors.ts` — detects scroll velocity, keystroke rate, and idle gaps; emits a `TELEMETRY_WINDOW` message every 30 s
+- `background/index.ts` — Service Worker: routes Chrome messages, batches and sends telemetry
+- `content/index.tsx` — injected into every tab; mounts the overlay inside Shadow DOM, extracts page context
+- `overlay/store/overlayStore.ts` — all data flow gated behind `sessionActive`; no backend traffic until the user clicks "Start Studying"
+- `overlay/hooks/useBehavioralSensors.ts` — scroll velocity, keystroke rate, idle-gap detection; emits every 30 s
 
-### Frontend Dashboard (`frontend/`)
+### Dashboard (`frontend/`)
 
 | Layer | Technology |
 |-------|-----------|
@@ -93,11 +132,11 @@ The `shared/` module is imported by both the extension and dashboard via the `@s
 | UI | **React 18** + **TypeScript** |
 | Routing | **React Router v6** |
 | Styling | **Tailwind CSS v3** |
-| Charts | **Recharts v2** (focus rhythm line chart, calendar heatmap, topic grid) |
+| Charts | **Recharts v2** (focus rhythm, calendar heatmap, topic grid) |
 | Animations | **Framer Motion** |
 | HTTP | **Axios** |
 
-**Pages:** Dashboard · Session Detail · Topic Detail · Techniques · Weekly Review · Learner DNA · Onboarding
+Pages: Dashboard · Session Detail · Topic Detail · Techniques · Weekly Review · Learner DNA · Onboarding
 
 ### Shared module (`shared/`)
 
@@ -108,15 +147,30 @@ The `shared/` module is imported by both the extension and dashboard via the `@s
 
 ---
 
+## Privacy
+
+Ori was designed privacy-first, not privacy-bolted-on.
+
+- **No camera. No microphone. No biometrics. Ever.**
+- Only behavioural timing signals are collected: numeric aggregates, never content
+- All learner profile processing runs locally in the browser
+- Page content sent to the LLM is ephemeral: never stored, never logged (server raises `ValueError` at startup if either privacy flag is set to `true`)
+- Optional anonymised sharing uses differential privacy (Laplace mechanism, ε = 0.1)
+- Built on the PP-EDUVec framework: 36.7% reduction in learner data leakage vs. standard approaches
+
+Your learning patterns are yours. Period.
+
+---
+
 ## Local setup
 
 ### Prerequisites
 
 - Python 3.11+
 - Node.js 18+
-- An AWS account with credentials configured (`aws configure`) — DynamoDB is used even locally
-- A [MiniMax API key](https://www.minimax.io)
-- Chrome (to load the extension)
+- AWS account with credentials configured (`aws configure`) — DynamoDB is used even locally
+- A MiniMax API key
+- Chrome
 
 ---
 
@@ -125,10 +179,8 @@ The `shared/` module is imported by both the extension and dashboard via the `@s
 ```bash
 cd backend
 
-# Install Python dependencies (editable install, includes dev tools)
 pip install -e ".[dev]"
 
-# Copy and fill in the environment file
 cp .env.example .env
 ```
 
@@ -136,9 +188,9 @@ Open `.env` and set at minimum:
 
 ```
 MINIMAX_API_KEY=your-key-here
-AWS_ACCESS_KEY_ID=...        # or use: aws configure
+AWS_ACCESS_KEY_ID=...
 AWS_SECRET_ACCESS_KEY=...
-AWS_REGION=me-central-1      # or your preferred region
+AWS_REGION=me-central-1
 ```
 
 ```bash
@@ -152,10 +204,10 @@ make run
 # → http://localhost:8000/redoc  ReDoc
 ```
 
-Other useful `make` targets:
+Other `make` targets:
 
 ```bash
-make test        # run full pytest suite with coverage
+make test        # full pytest suite with coverage (361 tests)
 make test-fast   # stop on first failure
 make lint        # ruff check
 make format      # black + ruff --fix
@@ -164,7 +216,7 @@ make smoke       # end-to-end smoke test against localhost:8000
 
 ---
 
-### 2. Chrome Extension
+### 2. Extension
 
 ```bash
 cd extension-overlay
@@ -172,29 +224,20 @@ cd extension-overlay
 npm install
 
 cp .env.example .env
-# Set VITE_BACKEND_URL=http://localhost:8000
-```
+# Set: VITE_BACKEND_URL=http://localhost:8000
 
-**Development (hot reload):**
-
-```bash
-npm run dev
-```
-
-**Load into Chrome:**
-
-```bash
 npm run build
 ```
 
 1. Open `chrome://extensions`
-2. Enable **Developer mode** (top-right toggle)
-3. Click **Load unpacked** → select the `extension-overlay/dist/` folder
-4. The ProSocratic icon will appear in your toolbar
+2. Enable **Developer mode**
+3. Click **Load unpacked** → select `extension-overlay/dist/`
+
+For hot reload during development: `npm run dev`
 
 ---
 
-### 3. Frontend Dashboard
+### 3. Dashboard
 
 ```bash
 cd frontend
@@ -215,69 +258,43 @@ The dashboard reads the same `X-User-Id` UUID that the extension writes to `loca
 |--------|------|---------|
 | GET | `/health` | Readiness check |
 | POST | `/v1/session/start` | Start a study session |
-| POST | `/v1/session/update` | Send behavioral state snapshot, receive `ori_state` + suggestion |
+| POST | `/v1/session/update` | Send behavioural snapshot, receive `ori_state` + suggestion |
 | POST | `/v1/session/end` | Close session and persist summary |
 | GET | `/v1/dashboard/summary` | Aggregated learning analytics |
 | GET | `/v1/dashboard/sessions` | Session list |
 | GET | `/v1/dashboard/session/{id}` | Single session detail |
-| POST | `/v1/questions/answer` | Socratic answer + follow-up question |
+| POST | `/v1/questions/answer` | Socratic answer + follow-up |
 | POST | `/v1/unasked-question` | Adjacent-concept probe question |
-| POST | `/v1/techniques/select` | Technique recommendation from behavioral signals |
-| POST | `/v1/microassess/generate` | Generate recall/application probe questions |
+| POST | `/v1/techniques/select` | Technique recommendation from behavioural signals |
+| POST | `/v1/microassess/generate` | Generate recall/application probes |
 | POST | `/v1/microassess/submit` | Score a free-text answer (raw text discarded after scoring) |
 | GET/PUT/DELETE | `/v1/profiles/{user_id}` | Learner profile CRUD |
 | GET | `/v1/profiles/{user_id}/export` | Full data export |
 
 Full API contract: [`backend/docs/API_CONTRACT.md`](backend/docs/API_CONTRACT.md)
 Postman collection: [`backend/docs/postman_collection.json`](backend/docs/postman_collection.json)
-Frontend integration notes: [`backend/docs/FRONTEND_INTEGRATION.md`](backend/docs/FRONTEND_INTEGRATION.md)
-Monorepo wiring: [`docs/INTEGRATION.md`](docs/INTEGRATION.md)
+Integration guide: [`docs/INTEGRATION.md`](docs/INTEGRATION.md)
 
 ---
 
-## Environment variables
+## Team
 
-### Backend (`backend/.env`)
+Five undergrads from Mohammed bin Zayed University of Artificial Intelligence (MBZUAI), Abu Dhabi, UAE.
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `MINIMAX_API_KEY` | — | MiniMax API key (required) |
-| `MINIMAX_MODEL` | `MiniMax-M2.5` | Model ID |
-| `MINIMAX_TEMPERATURE` | `0.4` | Generation temperature |
-| `MINIMAX_MAX_TOKENS` | `1024` | Max tokens per completion |
-| `MINIMAX_TIMEOUT_SECONDS` | `20` | Request timeout |
-| `AWS_REGION` | `me-central-1` | DynamoDB region |
-| `AWS_ACCESS_KEY_ID` | — | AWS credentials |
-| `AWS_SECRET_ACCESS_KEY` | — | AWS credentials |
-| `TABLE_USERS` | `ProsocraticUsers` | DynamoDB table name |
-| `TABLE_SESSIONS` | `ProsocraticSessions` | DynamoDB table name |
-| `TABLE_ASSESSMENTS` | `ProsocraticAssessments` | DynamoDB table name |
-| `STORE_RAW_ANSWERS` | `false` | Must stay `false` — server raises on startup if `true` |
-| `STORE_PAGE_CONTEXT` | `false` | Must stay `false` — server raises on startup if `true` |
-| `DASHBOARD_ORIGIN` | `http://localhost:3000` | CORS allowed origin for the dashboard |
-| `EXTENSION_DEV_MODE` | `true` | Allows any `chrome-extension://` origin in dev |
-| `LOG_LEVEL` | `info` | Logging level |
-
-### Extension (`extension-overlay/.env`)
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `VITE_BACKEND_URL` | `http://localhost:8000` | Backend base URL |
-
-### Dashboard (`frontend/.env`)
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `VITE_API_BASE_URL` | `http://localhost:8000` | Backend base URL |
+| | Name | Role |
+|---|---|---|
+| 🧠 | **Harmanjot Singh** | Tech Lead. Architected and built the entire backend (FastAPI, DynamoDB, AWS Lambda). Designed the Policy Engine and the technique scoring system. Integrated MiniMax LLM for Socratic question generation and micro-assessment grading. |
+| 📊 | **Abhra Dubey** | Frontend Lead. Built the analytics dashboard (React, TypeScript). Designed the learner metrics, insight visualisations, and the data contracts between frontend and backend. |
+| 🔌 | **Atharva Teg Ratan** | Extension Lead. Built the Chrome extension from the ground up. Implemented the behavioural signal collection pipeline and engineered the local cognitive state classifier. |
+| 🔬 | **Anagha Rohit** | Research Lead and QA Engineer. Led the academic research grounding the project including the PP-EDUVec framework (City University of Macau, Feb 2026). Validated the cognitive state detection approach against published literature and owned end-to-end testing across the extension and backend. |
+| 🎨 | **Ananthicha** | Product and Design Lead. Drove product ideation and the overall UX vision. Designed the Ori avatar and interaction model. Built the pitch deck and presentation materials. Ran user-facing testing sessions to validate how real students respond to Ori's nudges. |
 
 ---
 
-## User identity
+## Demo
 
-A single anonymous UUID (v4) identifies the learner across all three surfaces:
+📹 [Watch the 2-minute demo](#) *(link coming soon)*
 
-- **Extension** — generated via `crypto.randomUUID()`, persisted in `chrome.storage.local` under `prosocratic_user_id`, and mirrored to `localStorage` so the dashboard can read it
-- **Dashboard** — reads from `localStorage`; generates its own UUID on first load if the extension is absent
-- **Backend** — validates the UUID from the `X-User-Id` request header on every authenticated endpoint
+---
 
-No name, email, or personally identifiable information is required or stored anywhere.
+*Built at HackTheEast 2026, Hong Kong by five undergrads from the UAE who care way too much about how people learn.*
