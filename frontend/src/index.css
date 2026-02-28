@@ -136,6 +136,7 @@ body::after {
   border: 1px solid rgba(251, 191, 36, 0.4);
 }
 
+<<<<<<< HEAD
 .bento-cell-amber .text-accentPrimary,
 .bento-cell-amber [class*="text-accent"] {
   color: #FBBF24;
@@ -255,6 +256,8 @@ body::after {
   transform: scale(1.03);
 }
 
+=======
+>>>>>>> d81562fe67a177f293965a8a33cd5d6f58974f46
 /* Smooth scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

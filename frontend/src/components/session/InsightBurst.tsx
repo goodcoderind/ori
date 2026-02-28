@@ -6,9 +6,14 @@ interface InsightBurstProps {
 }
 
 export function InsightBurst({ session }: InsightBurstProps) {
-  if (!session.insight_moments) return null;
+  // Count insight moments from the event timeline
+  const insightCount = session.event_timeline.filter(
+    (e) => e.state_label === 'INSIGHT'
+  ).length;
 
-  const cards = Array.from({ length: session.insight_moments }).map((_, idx) => ({
+  if (insightCount === 0) return null;
+
+  const cards = Array.from({ length: insightCount }).map((_, idx) => ({
     id: idx,
   }));
 
@@ -17,8 +22,8 @@ export function InsightBurst({ session }: InsightBurstProps) {
       <div className="flex items-center gap-2 text-xs text-textMuted">
         <span className="text-base">✨</span>
         <span>
-          {session.insight_moments} insight
-          {session.insight_moments > 1 ? ' moments noticed in this session.' : ' moment noticed in this session.'}
+          {insightCount} insight
+          {insightCount > 1 ? ' moments noticed in this session.' : ' moment noticed in this session.'}
         </span>
       </div>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
@@ -42,4 +47,3 @@ export function InsightBurst({ session }: InsightBurstProps) {
     </section>
   );
 }
-

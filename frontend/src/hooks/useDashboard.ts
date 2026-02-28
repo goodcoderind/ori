@@ -1,11 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { DashboardSummary, SessionListItem } from '../types/api';
 import { getDashboardSummary, getSessions } from '../api/dashboard';
-import { mockSessions, mockSummary } from '../api/mock';
 import { handleApiError } from '../utils/handleApiError';
-
-// Default to mock data unless explicitly disabled with VITE_USE_MOCK="false"
-const USE_MOCK = (import.meta.env.VITE_USE_MOCK ?? 'true') === 'true';
 
 interface UseDashboardState {
   summary: DashboardSummary | null;
@@ -29,35 +25,24 @@ export function useDashboard(): UseDashboardState {
       setLoading(true);
       setError(null);
       try {
-        if (USE_MOCK) {
-          if (cancelled) return;
-          setSummary(mockSummary);
-          setSessions(mockSessions);
-        } else {
-          const [summaryRes, sessionsRes] = await Promise.all([
-            getDashboardSummary(),
-            getSessions(),
-          ]);
-          if (cancelled) return;
-          setSummary(summaryRes.data);
-          setSessions(sessionsRes.data);
-        }
+        const [summaryRes, sessionsRes] = await Promise.all([
+          getDashboardSummary(),
+          getSessions(),
+        ]);
+        if (cancelled) return;
+        setSummary(summaryRes.data);
+        setSessions(sessionsRes.data);
       } catch (err) {
         if (cancelled) return;
-        if (USE_MOCK) {
-        setError('Unable to load dashboard. Please try again.');
-        } else {
-          const errorInfo = handleApiError(err);
-          setError(errorInfo.message);
-          
-          // Handle 429 retry
-          if (errorInfo.retryAfter) {
-            setTimeout(() => {
-              if (!cancelled) {
-                setReloadKey((k) => k + 1);
-              }
-            }, errorInfo.retryAfter * 1000);
-          }
+        const errorInfo = handleApiError(err);
+        setError(errorInfo.message);
+
+        if (errorInfo.retryAfter) {
+          setTimeout(() => {
+            if (!cancelled) {
+              setReloadKey((k) => k + 1);
+            }
+          }, errorInfo.retryAfter * 1000);
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -79,4 +64,3 @@ export function useDashboard(): UseDashboardState {
     refetch: () => setReloadKey((k) => k + 1),
   };
 }
-

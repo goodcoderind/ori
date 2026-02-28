@@ -35,21 +35,8 @@ export function initTelemetry(): () => void {
       })
     }
 
-    // Option B: Direct fetch to backend (if no background worker)
-    // Uncomment when backend is available:
-    //
-    // fetch('http://localhost:3001/api/v1/session/update', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({
-    //     session_id: sessionStorage.getItem('prosocratic_session_id') || 'unknown',
-    //     url: sanitizeUrl(window.location.href),
-    //     title: document.title,
-    //     timestamp: Date.now(),
-    //     window_duration_s: 30,
-    //     ...snapshot,
-    //   }),
-    // }).catch(() => {})  // silently fail if backend unreachable
+    // All telemetry is routed through the background service worker (Option A above).
+    // The service worker forwards snapshots to POST /v1/session/update.
   })
 
   // Return cleanup function

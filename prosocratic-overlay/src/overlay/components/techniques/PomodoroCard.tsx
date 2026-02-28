@@ -19,7 +19,7 @@ const GLASS = {
 const BLUE = '#60a5fa'
 
 export default function PomodoroCard() {
-  const { activeTechnique, startPomodoro, tickPomodoro, endTechnique, advanceDemo } = useOverlayStore()
+  const { activeTechnique, startPomodoro, tickPomodoro, endTechnique } = useOverlayStore()
   const intervalRef = useRef<number | null>(null)
 
   useEffect(() => {
@@ -55,7 +55,7 @@ export default function PomodoroCard() {
             <Pill key={min} label={`${min} min`} onClick={() => startPomodoro(min)} />
           ))}
         </div>
-        <Dismiss onClick={() => { endTechnique(); advanceDemo() }} />
+        <Dismiss onClick={() => endTechnique()} />
       </motion.div>
     )
   }

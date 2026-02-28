@@ -1,24 +1,8 @@
-export type LearnerState =
-  | 'FLOW'
-  | 'MIND_WANDER'
-  | 'CONFUSION'
-  | 'FRUSTRATION'
-  | 'OVERLOAD'
-  | 'BOREDOM'
-  | 'INSIGHT';
+/**
+ * Re-export state enums from the shared module.
+ * Kept as a thin wrapper so existing component imports continue to resolve.
+ */
+export type { LearnerState, SuggestionType } from '@shared/apiTypes';
 
-export type OriState =
-  | 'IDLE'
-  | 'NOTICING'
-  | 'HAS_SOMETHING'
-  | 'INSIGHT'
-  | 'FATIGUE'
-  | 'FRUSTRATED';
-
-export type SuggestionType =
-  | 'NONE'
-  | 'MICRO_ASSESS'
-  | 'TECHNIQUE'
-  | 'BREAK'
-  | 'UNASKED_QUESTION';
-
+// The shared module uses BackendOriState; re-export under the local alias.
+export type { BackendOriState as OriState } from '@shared/apiTypes';

@@ -16,19 +16,22 @@ export function TopicGrid({ summary, sessions }: TopicGridProps) {
   const topics = Object.entries(summary.mastery_by_topic);
 
   const topicPatterns: Record<string, string[]> = {};
-  topics.forEach(([topic, masteryEntry]) => {
+  topics.forEach(([topic]) => {
     const topicSessions = sessions.filter((s) => s.topic_label === topic);
     const avgDuration =
       topicSessions.reduce((acc, s) => acc + s.duration_seconds, 0) /
       (topicSessions.length || 1) / 60;
-    // Estimate flow by confidence (sessions don't have dominant_state)
-    const hasFlow = topicSessions.some((s) => s.avg_confidence !== null && s.avg_confidence > 0.7);
+    const highConfSessions = topicSessions.filter((s) => s.avg_confidence !== null && s.avg_confidence > 0.7);
+    const lowConfSessions = topicSessions.filter((s) => s.avg_confidence !== null && s.avg_confidence < 0.5);
 
     const patterns: string[] = [];
-    if (avgDuration > 45) patterns.push('Gets stuck after ~40min');
-    if (hasFlow) patterns.push('Flow is common here');
-    if (patterns.length === 0) patterns.push('Still learning this pattern');
-    patterns.unshift('Visual learner here');
+    if (topicSessions.length > 0) {
+      patterns.push(`${topicSessions.length} session${topicSessions.length !== 1 ? 's' : ''}`);
+    }
+    if (avgDuration > 45) patterns.push(`Avg ${Math.round(avgDuration)}min sessions`);
+    if (highConfSessions.length > 0) patterns.push(`${highConfSessions.length} high-confidence`);
+    if (lowConfSessions.length > 0) patterns.push(`${lowConfSessions.length} struggled`);
+    if (patterns.length === 0) patterns.push('No sessions yet');
 
     topicPatterns[topic] = patterns.slice(0, 3);
   });

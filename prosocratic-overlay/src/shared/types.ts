@@ -89,10 +89,15 @@ export type ChromeMessage =
   | { type: 'STATE_CLASSIFIED'; payload: ClassifiedState }
   | { type: 'NUDGE_READY'; payload: { nudge: Nudge; transparency: TransparencyData } }
   | { type: 'ORI_STATE_CHANGE'; payload: { state: OriState } }
-  | { type: 'CHAT_REQUEST'; payload: { message: string; sessionId: string } }
+  | { type: 'CHAT_REQUEST'; payload: { message: string; sessionId?: string } }
   | { type: 'CHAT_RESPONSE'; payload: { response: string; isSocratic: boolean } }
   | { type: 'PAGE_CONTEXT'; payload: { topic: string; url: string; textLength: number } }
   | { type: 'SESSION_SYNC'; payload: SessionData }
+  | { type: 'TELEMETRY_WINDOW'; payload: Record<string, unknown> }
+  | { type: 'MICROASSESS_GENERATE'; payload: { topic_label: string; page_context: { headings: string[]; cleaned_text_snippet: string }; difficulty?: 'easy' | 'med' | 'hard' } }
+  | { type: 'MICROASSESS_SUBMIT'; payload: { probe_set_id: string; probe_type: 'recall' | 'transfer'; answer_text: string } }
+  | { type: 'MICROASSESS_SUGGESTED'; payload: Record<string, unknown> }
+  | { type: 'UNASKED_QUESTION'; payload: { topic_label: string; page_context: { headings: string[]; cleaned_text_snippet: string } } }
 
 // ─── Session Data (for dashboard sync via chrome.storage) ─────
 export interface SessionData {
@@ -147,14 +152,6 @@ export interface QuizCard {
   options: string[]        // 4 MCQ choices
   correctIndex: number     // which option index (0-3) is correct
   userAnswer?: 'correct' | 'incorrect' | null
-}
-
-// ─── Demo Preset Content ────────────────────────────────────
-export interface DemoSequenceStep {
-  delay: number                  // ms after previous step
-  technique: TechniqueType
-  message: string               // What Ori says when surfacing
-  data?: Record<string, unknown>
 }
 
 // ─── Backend API Types ────────────────────────────────────────

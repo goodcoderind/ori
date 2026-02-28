@@ -104,7 +104,8 @@ export async function saveSession(session: SessionData): Promise<void> {
     .first()
 
   if (existing) {
-    await db.sessions.update(existing.id!, session)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await db.sessions.update(existing.id!, session as any)
   } else {
     await db.sessions.add(session)
   }

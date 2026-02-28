@@ -4,8 +4,12 @@ import { useDashboard } from '../hooks/useDashboard';
 import { Spinner } from '../components/ui/Spinner';
 import { ErrorCard } from '../components/ui/ErrorCard';
 import { EmptyState } from '../components/ui/EmptyState';
+<<<<<<< HEAD
 import { DashboardLoader } from '../components/ui/DashboardLoader';
 import { ExpandableCard } from '../components/ui/ExpandableCard';
+=======
+import { ErrorBoundary } from '../components/ui/ErrorBoundary';
+>>>>>>> d81562fe67a177f293965a8a33cd5d6f58974f46
 import { HeroStrip } from '../components/dashboard/HeroStrip';
 import { FocusRhythmChart } from '../components/dashboard/FocusRhythmChart';
 import { FocusDonut } from '../components/dashboard/FocusDonut';
@@ -64,6 +68,7 @@ export function Dashboard() {
   }
 
   return (
+<<<<<<< HEAD
     <>
       <DashboardLoader isLoading={showLoader} />
       <AnimatePresence>
@@ -77,12 +82,24 @@ export function Dashboard() {
           >
       {/* Bento Grid Layout - Everything fits on one screen */}
       <div className="grid grid-cols-12 grid-rows-5 gap-3 h-full p-3">
+=======
+    <ErrorBoundary>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.6 }}
+      className="w-full"
+    >
+      {/* Bento Grid Layout */}
+      <div className="grid grid-cols-12 grid-rows-[auto_auto_auto_auto] gap-2 lg:gap-3">
+>>>>>>> d81562fe67a177f293965a8a33cd5d6f58974f46
         
         {/* Row 1: Hero Stats - Not expandable */}
         <div className="col-span-12 row-span-1">
           <HeroStrip summary={summary} sessions={sessions} />
         </div>
 
+<<<<<<< HEAD
         {/* Row 2-3: Left side + Center Panda + Right side */}
         {/* Focus Rhythm - Left */}
         <ExpandableCard
@@ -93,6 +110,15 @@ export function Dashboard() {
               <FocusRhythmChart summary={summary} sessions={sessions} />
             </div>
           }
+=======
+        {/* Row 2: Focus Rhythm + Calendar Heatmap */}
+        {/* Focus Rhythm - Large left card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="col-span-12 lg:col-span-6 bento-cell bento-cell-indigo p-4"
+>>>>>>> d81562fe67a177f293965a8a33cd5d6f58974f46
         >
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -104,6 +130,7 @@ export function Dashboard() {
           </motion.div>
         </ExpandableCard>
 
+<<<<<<< HEAD
         {/* Center Panda - Not expandable */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -143,6 +170,14 @@ export function Dashboard() {
               </div>
             </div>
           }
+=======
+        {/* Calendar Heatmap - Right side */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.15 }}
+          className="col-span-12 lg:col-span-6 bento-cell bento-cell-teal p-4"
+>>>>>>> d81562fe67a177f293965a8a33cd5d6f58974f46
         >
           <motion.div
             initial={{ opacity: 0, x: 20 }}
@@ -326,10 +361,16 @@ export function Dashboard() {
           </motion.div>
         </ExpandableCard>
 
+<<<<<<< HEAD
           </div>
           </motion.div>
         )}
       </AnimatePresence>
     </>
+=======
+      </div>
+    </motion.div>
+    </ErrorBoundary>
+>>>>>>> d81562fe67a177f293965a8a33cd5d6f58974f46
   );
 }

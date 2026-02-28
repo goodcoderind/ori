@@ -19,7 +19,7 @@ const GLASS = {
 const BLUE = '#60a5fa'
 
 export default function FeynmanPanel() {
-  const { activeTechnique, setTechniquePhase, updateFeynmanText, saveFeynman, endTechnique, advanceDemo } = useOverlayStore()
+  const { activeTechnique, setTechniquePhase, updateFeynmanText, saveFeynman, endTechnique } = useOverlayStore()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
@@ -53,7 +53,7 @@ export default function FeynmanPanel() {
         </p>
         <div style={{ display: 'flex', gap: '8px' }}>
           <TryIt label="Try it" onClick={() => setTechniquePhase('feynman_writing')} />
-          <Dismiss onClick={() => { endTechnique(); advanceDemo() }} inline />
+          <Dismiss onClick={() => endTechnique()} inline />
         </div>
       </motion.div>
     )
@@ -69,7 +69,6 @@ export default function FeynmanPanel() {
     }
     const handleCancel = () => {
       endTechnique()
-      advanceDemo()
     }
 
     return (

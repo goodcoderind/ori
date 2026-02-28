@@ -141,13 +141,13 @@ export function WeeklyReview() {
               {summary.upcoming_reviews
                 .slice(0, 3)
                 .map((r) => {
-                  const dueDate = new Date(r.due_at);
+                  const dueDate = new Date(r.next_probe_at);
                   const now = Date.now();
                   const hoursUntil = (dueDate.getTime() - now) / (1000 * 60 * 60);
-                  if (hoursUntil < 0) return `${r.topic} (overdue)`;
-                  if (hoursUntil < 24) return `${r.topic} (today)`;
-                  if (hoursUntil < 48) return `${r.topic} (tomorrow)`;
-                  return `${r.topic} (in ${Math.round(hoursUntil / 24)} days)`;
+                  if (hoursUntil < 0) return `${r.topic_label} (overdue)`;
+                  if (hoursUntil < 24) return `${r.topic_label} (today)`;
+                  if (hoursUntil < 48) return `${r.topic_label} (tomorrow)`;
+                  return `${r.topic_label} (in ${Math.round(hoursUntil / 24)} days)`;
                 })
                 .join(', ')}
               .

@@ -1,20 +1,21 @@
 import { apiClient } from './client';
 import { getUserId } from '../utils/getUserId';
-import type { DashboardSummary, SessionListItem, SessionDetail } from '../types/api';
+import { API } from '@shared/apiConfig';
+import type { DashboardSummary, SessionListItem, SessionDetail } from '@shared/apiTypes';
 
 const uid = () => getUserId();
 
 export const getDashboardSummary = () =>
-  apiClient.get<DashboardSummary>('/v1/dashboard/summary', {
+  apiClient.get<DashboardSummary>(API.DASHBOARD_SUMMARY, {
     params: { user_id: uid() },
   });
 
 export const getSessions = (limit = 20) =>
-  apiClient.get<SessionListItem[]>('/v1/dashboard/sessions', {
+  apiClient.get<SessionListItem[]>(API.DASHBOARD_SESSIONS, {
     params: { user_id: uid(), limit },
   });
 
 export const getSessionDetail = (session_id: string) =>
-  apiClient.get<SessionDetail>(`/v1/dashboard/session/${session_id}`, {
+  apiClient.get<SessionDetail>(API.DASHBOARD_SESSION(session_id), {
     params: { user_id: uid() },
   });

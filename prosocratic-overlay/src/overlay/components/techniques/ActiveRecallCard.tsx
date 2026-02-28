@@ -17,7 +17,7 @@ const GLASS = {
 const BLUE = '#60a5fa'
 
 export default function ActiveRecallCard() {
-  const { activeTechnique, setTechniquePhase, endTechnique, advanceDemo, addOriMessage } = useOverlayStore()
+  const { activeTechnique, setTechniquePhase, endTechnique, addOriMessage } = useOverlayStore()
 
   if (!activeTechnique || activeTechnique.type !== 'active_recall') return null
   const phase = activeTechnique.phase
@@ -52,11 +52,11 @@ export default function ActiveRecallCard() {
           <TryIt label="Quiz me" onClick={() => {
             useOverlayStore.getState().endTechnique()
             setTimeout(() => {
-              useOverlayStore.getState().startTechnique('quiz', "Let's test what you remember. 4 quick questions on DNA replication.")
+              useOverlayStore.getState().startTechnique('quiz', "Let's test what you remember with a quick quiz.")
             }, 500)
           }} />
         </div>
-        <Dismiss onClick={() => { endTechnique(); advanceDemo() }} />
+        <Dismiss onClick={() => endTechnique()} />
       </motion.div>
     )
   }
@@ -76,7 +76,7 @@ export default function ActiveRecallCard() {
           borderRadius: '10px', padding: '12px', marginBottom: '10px',
         }}>
           <p style={{ fontSize: '12.5px', color: 'rgba(255,255,255,0.5)', margin: 0, lineHeight: 1.5 }}>
-            What are the key enzymes involved in DNA replication and what does each one do?
+            What are the key concepts you just studied? Try to recall them from memory.
           </p>
         </div>
         <p style={{ fontSize: '10.5px', color: 'rgba(255,255,255,0.2)', margin: '0 0 10px' }}>
