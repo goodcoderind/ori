@@ -1,0 +1,281 @@
+{
+  "info": {
+    "name": "ProSocratic API",
+    "description": "Privacy-first AI study companion backend.\n\nSet the `baseUrl` collection variable to your deployment URL.\nSet `userId` to a UUID v4 (generate one at https://www.uuidgenerator.net/).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "prosocratic-api-v1"
+  },
+  "variable": [
+    { "key": "baseUrl",   "value": "http://localhost:8000", "type": "string" },
+    { "key": "userId",    "value": "550e8400-e29b-41d4-a716-446655440000", "type": "string" },
+    { "key": "sessionId", "value": "", "type": "string", "description": "Populated by the start-session request." },
+    { "key": "probeSetId","value": "", "type": "string", "description": "Populated by microassess/generate." }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      { "key": "key",   "value": "X-User-Id",      "type": "string" },
+      { "key": "value", "value": "{{userId}}",      "type": "string" },
+      { "key": "in",    "value": "header",           "type": "string" }
+    ]
+  },
+  "item": [
+    {
+      "name": "System",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/health",
+            "auth": { "type": "noauth" }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Session Lifecycle",
+      "item": [
+        {
+          "name": "Start session",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j.session_id) pm.collectionVariables.set('sessionId', j.session_id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/v1/session/start",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://en.wikipedia.org/wiki/Adenosine_triphosphate\",\n  \"title\": \"Adenosine triphosphate - Wikipedia\",\n  \"topic_label\": \"Biology/ATP\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update session (FLOW)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/v1/session/update",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"{{sessionId}}\",\n  \"state_label\": \"FLOW\",\n  \"confidence\": 0.88,\n  \"feature_summary\": {\n    \"keystroke_speed\": 1.4,\n    \"fatigue_score\": 0.15\n  },\n  \"url\": \"https://en.wikipedia.org/wiki/Adenosine_triphosphate\",\n  \"title\": \"Adenosine triphosphate - Wikipedia\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update session (CONFUSION)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/v1/session/update",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"{{sessionId}}\",\n  \"state_label\": \"CONFUSION\",\n  \"confidence\": 0.91,\n  \"feature_summary\": {\n    \"idle_gap_s\": 130.0,\n    \"section_revisit_count\": 2.0,\n    \"confusion_confidence\": 0.91,\n    \"fatigue_score\": 0.2\n  },\n  \"url\": \"https://en.wikipedia.org/wiki/Adenosine_triphosphate\",\n  \"title\": \"Adenosine triphosphate - Wikipedia\"\n}"
+            }
+          }
+        },
+        {
+          "name": "End session",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/v1/session/end",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"{{sessionId}}\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Questions",
+      "item": [
+        {
+          "name": "Answer question",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/v1/questions/answer",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"page_context\": \"ATP (adenosine triphosphate) is a nucleotide that provides energy for cellular processes. It consists of adenosine and three phosphate groups.\",\n  \"question\": \"What exactly is ATP?\",\n  \"topic_label\": \"Biology/ATP\",\n  \"session_id\": \"{{sessionId}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Suggest unasked concept",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/v1/questions/unasked",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"accepted_concept\": \"ATP\",\n  \"topic_label\": \"Biology/ATP\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Socratic Engine",
+      "item": [
+        {
+          "name": "Generate unasked question",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/v1/unasked-question",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"{{sessionId}}\",\n  \"topic_label\": \"Biology/ATP\",\n  \"page_context\": {\n    \"headings\": [\"ATP Structure\", \"Energy Release\", \"ATP Synthesis\"],\n    \"cleaned_text_snippet\": \"Adenosine triphosphate (ATP) is a nucleotide that serves as the primary energy currency of the cell. The energy is stored in the phosphate bonds and released when hydrolysis occurs.\"\n  }\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Techniques",
+      "item": [
+        {
+          "name": "Select technique",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/v1/techniques/select",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"state_label\": \"CONFUSION\",\n  \"confidence\": 0.91,\n  \"feature_summary\": {\n    \"idle_gap_s\": 130.0,\n    \"confusion_confidence\": 0.91,\n    \"fatigue_score\": 0.2\n  },\n  \"session_id\": \"{{sessionId}}\",\n  \"topic_label\": \"Biology/ATP\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Micro-Assessment",
+      "item": [
+        {
+          "name": "Generate probes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j.probe_set_id) pm.collectionVariables.set('probeSetId', j.probe_set_id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/v1/microassess/generate",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"{{sessionId}}\",\n  \"topic_label\": \"Biology/ATP\",\n  \"page_context\": {\n    \"headings\": [\"ATP Structure\", \"Energy Release\"],\n    \"cleaned_text_snippet\": \"ATP stores chemical energy in high-energy phosphate bonds. When a cell needs energy, ATP is hydrolysed to ADP, releasing energy for cellular work.\"\n  },\n  \"difficulty\": \"med\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Submit answer",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/v1/microassess/submit",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"probe_set_id\": \"{{probeSetId}}\",\n  \"probe_type\": \"recall\",\n  \"answer_text\": \"ATP is like a battery for the cell. It stores energy in its phosphate bonds and releases it when those bonds break.\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Summary",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/v1/dashboard/summary?user_id={{userId}}",
+              "query": [{ "key": "user_id", "value": "{{userId}}" }]
+            }
+          }
+        },
+        {
+          "name": "Sessions list",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/v1/dashboard/sessions?user_id={{userId}}&limit=20",
+              "query": [
+                { "key": "user_id", "value": "{{userId}}" },
+                { "key": "limit",   "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Session detail",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/v1/dashboard/session/{{sessionId}}?user_id={{userId}}",
+              "query": [{ "key": "user_id", "value": "{{userId}}" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Profiles",
+      "item": [
+        {
+          "name": "Get profile",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/v1/profiles/{{userId}}"
+          }
+        },
+        {
+          "name": "Update modality preference",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/v1/profiles/{{userId}}",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"modality_pref\": \"visual\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Export profile",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/v1/profiles/{{userId}}/export"
+          }
+        },
+        {
+          "name": "Delete all data",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/v1/profiles/{{userId}}"
+          }
+        }
+      ]
+    }
+  ]
+}
