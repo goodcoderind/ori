@@ -91,7 +91,7 @@ ori/
 | Framework | **FastAPI 0.115** + **Uvicorn** |
 | Data validation | **Pydantic v2** + **pydantic-settings** |
 | HTTP client | **httpx** (async, shared connection pool, exponential-backoff retries on 429/5xx) |
-| LLM | **MiniMax API** (`MiniMax-M2.5-highspeed`) |
+| LLM | **MiniMax API** (`MiniMax-M2.5`) |
 | Policy Engine | Pure Python deterministic scorer — no LLM on the hot path |
 | Database | **AWS DynamoDB** via **boto3** — 3 tables: Users, Sessions, Assessments |
 | Serverless adapter | **Mangum** — wraps FastAPI as an AWS Lambda handler |
@@ -283,9 +283,9 @@ Five undergrads from Mohammed bin Zayed University of Artificial Intelligence (M
 |---|---|---|
 | 🧠 | **Harmanjot Singh** | Tech Lead. Architected and built the entire backend (FastAPI, DynamoDB, AWS Lambda). Designed the Policy Engine and the technique scoring system. Integrated MiniMax LLM for Socratic question generation and micro-assessment grading. |
 | 📊 | **Abhra Dubey** | Frontend Lead. Built the analytics dashboard (React, TypeScript). Designed the learner metrics, insight visualisations, and the data contracts between frontend and backend. |
-| 🔌 | **Atharva Teg Ratan** | Extension Lead. Built the Chrome extension from the ground up. Implemented the behavioural signal collection pipeline and engineered the local cognitive state classifier. |
+| 🔌 | **Atharv Teg Rattan** | Extension Lead. Built the Chrome extension from the ground up. Implemented the behavioural signal collection pipeline and engineered the local cognitive state classifier. |
 | 🔬 | **Anagha Rohit** | Research Lead and QA Engineer. Led the academic research grounding the project including the PP-EDUVec framework (City University of Macau, Feb 2026). Validated the cognitive state detection approach against published literature and owned end-to-end testing across the extension and backend. |
-| 🎨 | **Ananthicha** | Product and Design Lead. Drove product ideation and the overall UX vision. Designed the Ori avatar and interaction model. Built the pitch deck and presentation materials. Ran user-facing testing sessions to validate how real students respond to Ori's nudges. |
+| 🎨 | **Ananthicha Vimalkumar** | Product and Design Lead. Drove product ideation and the overall UX vision. Designed the Ori avatar and interaction model. Built the pitch deck and presentation materials. Ran user-facing testing sessions to validate how real students respond to Ori's nudges. |
 
 ---
 
@@ -295,4 +295,4 @@ Five undergrads from Mohammed bin Zayed University of Artificial Intelligence (M
 
 ---
 
-*Built at HackTheEast 2026, Hong Kong by five undergrads from the UAE who care way too much about how people learn.*
+*Built at HackTheEast 2026, Hong Kong 🇭🇰 by five undergrads from the UAE who care way too much about how people learn.*
