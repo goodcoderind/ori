@@ -71,10 +71,11 @@ export function generateWeeklyNarrative(
     }
   );
 
-  // Calculate numbers
-  const thisWeekHours = thisWeekSessions.reduce((acc, s) => acc + s.duration_minutes, 0) / 60;
-  const lastWeekHours = lastWeekSessions.reduce((acc, s) => acc + s.duration_minutes, 0) / 60;
-  const flowSessions = thisWeekSessions.filter((s) => s.dominant_state === 'FLOW').length;
+  // Calculate numbers - convert duration_seconds to hours
+  const thisWeekHours = thisWeekSessions.reduce((acc, s) => acc + s.duration_seconds, 0) / 3600;
+  const lastWeekHours = lastWeekSessions.reduce((acc, s) => acc + s.duration_seconds, 0) / 3600;
+  // Estimate flow sessions by confidence (sessions don't have dominant_state)
+  const flowSessions = thisWeekSessions.filter((s) => s.avg_confidence !== null && s.avg_confidence > 0.7).length;
   const avgFlow = thisWeekSessions.length > 0 ? flowSessions / thisWeekSessions.length : 0;
 
   // Week range
@@ -89,8 +90,8 @@ export function generateWeeklyNarrative(
   
   if (thisWeekSessions.length > 0) {
     const flowSessionsWithFlow = thisWeekSessions
-      .filter((s) => s.dominant_state === 'FLOW')
-      .sort((a, b) => b.duration_minutes - a.duration_minutes);
+      .filter((s) => s.avg_confidence !== null && s.avg_confidence > 0.7)
+      .sort((a, b) => b.duration_seconds - a.duration_seconds);
     
     if (flowSessionsWithFlow.length > 0) {
       const best = flowSessionsWithFlow[0];
@@ -104,8 +105,8 @@ export function generateWeeklyNarrative(
     }
 
     const frustrationSessions = thisWeekSessions
-      .filter((s) => s.dominant_state === 'FRUSTRATION' || s.dominant_state === 'CONFUSION')
-      .sort((a, b) => a.duration_minutes - b.duration_minutes);
+      .filter((s) => s.avg_confidence !== null && s.avg_confidence < 0.5)
+      .sort((a, b) => a.duration_seconds - b.duration_seconds);
     
     if (frustrationSessions.length > 0) {
       const hardest = frustrationSessions[0];
@@ -119,15 +120,16 @@ export function generateWeeklyNarrative(
     }
   }
 
-  // What worked - find top technique
-  const techniques = Object.entries(summary.technique_success_rates);
-  const topTechnique = techniques.sort((a, b) => b[1] - a[1])[0];
+  // What worked - find top technique (technique_success_rates is now an ARRAY)
+  const topTechnique = summary.technique_success_rates.length > 0
+    ? summary.technique_success_rates.sort((a, b) => b.success_rate - a.success_rate)[0]
+    : null;
   const whatWorked: WeeklyNarrative['whatWorked'] = topTechnique
     ? {
-        technique: topTechnique[0],
-        accepted: 4, // Mock
-        succeeded: 3, // Mock
-        message: `${topTechnique[0]} was your MVP this week — you accepted it ${4} times and it succeeded ${3} out of ${4}. Keep using it when you're confused on conceptual text.`,
+        technique: topTechnique.technique_id.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+        accepted: topTechnique.shown_count, // Use actual shown_count
+        succeeded: Math.round(topTechnique.shown_count * topTechnique.success_rate), // Calculate from success_rate
+        message: `${topTechnique.technique_id.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())} was your MVP this week — you accepted it ${topTechnique.shown_count} times and it succeeded ${Math.round(topTechnique.shown_count * topTechnique.success_rate)} out of ${topTechnique.shown_count}. Keep using it when you're confused on conceptual text.`,
       }
     : null;
 

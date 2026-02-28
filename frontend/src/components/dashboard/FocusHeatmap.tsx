@@ -9,7 +9,7 @@ import {
 } from 'recharts';
 import type { DashboardSummary } from '../../types/api';
 import { Card } from '../ui/Card';
-import { formatPeakRange } from '../../utils/formatters';
+import { formatPeriod } from '../../utils/formatters';
 
 interface FocusHeatmapProps {
   summary: DashboardSummary;
@@ -20,6 +20,7 @@ export function FocusHeatmap({ summary }: FocusHeatmapProps) {
   const data = [
     { label: 'morning', value: raw.morning },
     { label: 'afternoon', value: raw.afternoon },
+    { label: 'evening', value: raw.evening },
     { label: 'night', value: raw.night },
   ];
 
@@ -57,7 +58,7 @@ export function FocusHeatmap({ summary }: FocusHeatmapProps) {
             <YAxis
               dataKey="label"
               type="category"
-              tickFormatter={(label) => formatPeakRange(label as 'morning' | 'afternoon' | 'night')}
+              tickFormatter={(label) => formatPeriod(label)}
               tick={{ fill: '#8A89A4', fontSize: 11 }}
               axisLine={false}
               tickLine={false}
@@ -71,7 +72,7 @@ export function FocusHeatmap({ summary }: FocusHeatmapProps) {
               }}
               formatter={(value: number, name, { payload }) => [
                 `${Math.round(value * 100)}% focus quality`,
-                formatPeakRange(payload?.label as 'morning' | 'afternoon' | 'night'),
+                formatPeriod(payload?.label || ''),
               ]}
             />
             <Bar

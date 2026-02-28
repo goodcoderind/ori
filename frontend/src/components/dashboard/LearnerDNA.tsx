@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import type { DashboardSummary, SessionListItem } from '../../types/api';
-import { formatPeakRange } from '../../utils/formatters';
+import { formatPeriod, formatTechniqueId } from '../../utils/formatters';
 
 interface LearnerDNAProps {
   summary: DashboardSummary;
@@ -9,19 +9,24 @@ interface LearnerDNAProps {
 
 export function LearnerDNA({ summary, sessions }: LearnerDNAProps) {
   // Calculate learner archetype and insights
-  const techniques = Object.entries(summary.technique_success_rates);
-  const [topTechniqueName] = techniques.sort((a, b) => b[1] - a[1])[0] ?? ['your current favourite move', 0];
+  // technique_success_rates is now an ARRAY
+  const topTechnique = summary.technique_success_rates.length > 0
+    ? summary.technique_success_rates.sort((a, b) => b.success_rate - a.success_rate)[0]
+    : null;
+  const topTechniqueName = topTechnique ? formatTechniqueId(topTechnique.technique_id) : 'your current favourite move';
 
   const masteryEntries = Object.entries(summary.mastery_by_topic);
-  const blindSpotTopic = masteryEntries.sort((a, b) => a[1] - b[1])[0]?.[0] ?? 'areas you touch less often';
+  const blindSpotTopic = masteryEntries.sort((a, b) => a[1].p_mastery - b[1].p_mastery)[0]?.[0] ?? 'areas you touch less often';
 
   const heat = summary.focus_heatmap;
-  const peakLabel = (Object.entries(heat).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'night') as 'morning' | 'afternoon' | 'night';
-  const peakRange = formatPeakRange(peakLabel);
+  const peakLabel = (Object.entries(heat).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'night') as 'morning' | 'afternoon' | 'evening' | 'night';
+  const peakRange = formatPeriod(peakLabel);
 
-  const avgDuration = sessions.reduce((acc, s) => acc + s.duration_minutes, 0) / (sessions.length || 1);
-  const flowSessions = sessions.filter((s) => s.dominant_state === 'FLOW');
-  const avgFlowDuration = flowSessions.reduce((acc, s) => acc + s.duration_minutes, 0) / (flowSessions.length || 1);
+  // Convert duration_seconds to minutes
+  const avgDuration = sessions.reduce((acc, s) => acc + s.duration_seconds, 0) / (sessions.length || 1) / 60;
+  // Since sessions don't have dominant_state, estimate flow sessions by confidence
+  const flowSessions = sessions.filter((s) => s.avg_confidence !== null && s.avg_confidence > 0.7);
+  const avgFlowDuration = flowSessions.reduce((acc, s) => acc + s.duration_seconds, 0) / (flowSessions.length || 1) / 60;
 
   // Determine archetype
   const archetype = avgDuration > 45 && avgFlowDuration > 40 

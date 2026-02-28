@@ -9,9 +9,10 @@ import { Card } from '../components/ui/Card';
 import { ProgressBar } from '../components/ui/ProgressBar';
 import { SessionList } from '../components/dashboard/SessionList';
 import { TechniqueTable } from '../components/dashboard/TechniqueTable';
+import { formatRelative } from '../utils/formatters';
 
 function slugifyTopic(name: string): string {
-  return name.toLowerCase().replace(/\s+/g, '-');
+  return encodeURIComponent(name);
 }
 
 export function TopicDetail() {
@@ -20,8 +21,9 @@ export function TopicDetail() {
 
   const topicName = useMemo(() => {
     if (!summary || !slug) return null;
+    const decoded = decodeURIComponent(slug);
     const entry = Object.keys(summary.mastery_by_topic).find(
-      (topic) => slugifyTopic(topic) === slug,
+      (topic) => topic === decoded,
     );
     return entry ?? null;
   }, [summary, slug]);
@@ -53,7 +55,8 @@ export function TopicDetail() {
     );
   }
 
-  const mastery = summary.mastery_by_topic[topicName] ?? 0;
+  const masteryEntry = summary.mastery_by_topic[topicName];
+  const mastery = masteryEntry?.p_mastery ?? 0;
 
   return (
     <motion.div
@@ -127,6 +130,19 @@ export function TopicDetail() {
             This is DeepIt&apos;s current guess at how reliably you can work with
             this topic without sliding into re-learning.
           </div>
+          {masteryEntry && (
+            <div className="mt-4 space-y-1 text-xs text-textMuted">
+              {masteryEntry.last_probe_at && (
+                <div>Last reviewed {formatRelative(masteryEntry.last_probe_at)}</div>
+              )}
+              {masteryEntry.next_probe_at && (
+                <div>Next review {formatRelative(masteryEntry.next_probe_at)}</div>
+              )}
+              {!masteryEntry.last_probe_at && !masteryEntry.next_probe_at && (
+                <div>No reviews scheduled</div>
+              )}
+            </div>
+          )}
         </Card>
 
         <div className="md:col-span-2 space-y-4">
@@ -143,8 +159,8 @@ export function TopicDetail() {
                   Sessions on this topic tend to run{' '}
                   <span className="font-monoData">
                     {Math.round(
-                      topicSessions.reduce((acc, s) => acc + s.duration_minutes, 0) /
-                        (topicSessions.length || 1),
+                      topicSessions.reduce((acc, s) => acc + s.duration_seconds, 0) /
+                        (topicSessions.length || 1) / 60,
                     )}{' '}
                     min
                   </span>

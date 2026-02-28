@@ -1,6 +1,6 @@
 import type { DashboardSummary, SessionListItem } from '../../types/api';
 import { Card } from '../ui/Card';
-import { formatPeakRange } from '../../utils/formatters';
+import { formatPeriod, formatTechniqueId } from '../../utils/formatters';
 
 interface CrossInsightsProps {
   summary: DashboardSummary;
@@ -8,22 +8,25 @@ interface CrossInsightsProps {
 }
 
 export function CrossInsights({ summary, sessions }: CrossInsightsProps) {
-  const techniques = Object.entries(summary.technique_success_rates);
-  const [topTechniqueName] =
-    techniques.sort((a, b) => b[1] - a[1])[0] ?? ['your current favourite move', 0];
+  // technique_success_rates is now an ARRAY
+  const topTechnique = summary.technique_success_rates.length > 0
+    ? summary.technique_success_rates.sort((a, b) => b.success_rate - a.success_rate)[0]
+    : null;
+  const topTechniqueName = topTechnique ? formatTechniqueId(topTechnique.technique_id) : 'your current favourite move';
 
   const masteryEntries = Object.entries(summary.mastery_by_topic);
   const blindSpotTopic =
-    masteryEntries.sort((a, b) => a[1] - b[1])[0]?.[0] ?? 'areas you touch less often';
+    masteryEntries.sort((a, b) => a[1].p_mastery - b[1].p_mastery)[0]?.[0] ?? 'areas you touch less often';
 
   const heat = summary.focus_heatmap;
   const peakLabel = (Object.entries(heat).sort((a, b) => b[1] - a[1])[0]?.[0] ??
-    'night') as 'morning' | 'afternoon' | 'night';
-  const peakRange = formatPeakRange(peakLabel);
+    'night') as 'morning' | 'afternoon' | 'evening' | 'night';
+  const peakRange = formatPeriod(peakLabel);
 
+  // Convert duration_seconds to minutes
   const avgDuration =
-    sessions.reduce((acc, s) => acc + s.duration_minutes, 0) /
-    (sessions.length || 1);
+    sessions.reduce((acc, s) => acc + s.duration_seconds, 0) /
+    (sessions.length || 1) / 60;
 
   return (
     <section className="space-y-3">

@@ -1,43 +1,52 @@
-export function formatDurationMinutes(totalMinutes: number): string {
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-  if (hours === 0) return `${minutes} min`;
-  if (minutes === 0) return `${hours} hr`;
-  return `${hours} hr ${minutes} min`;
+// 2880 → "48 min" | 4500 → "1h 15min"
+export function formatDuration(seconds: number): string {
+  const m = Math.round(seconds / 60);
+  if (m < 60) return `${m} min`;
+  const h = Math.floor(m / 60);
+  const rem = m % 60;
+  return rem > 0 ? `${h}h ${rem}min` : `${h}h`;
 }
 
-export function formatRelativeTime(iso: string): string {
-  const now = new Date();
-  const target = new Date(iso);
-  const diffMs = target.getTime() - now.getTime();
-  const past = diffMs < 0;
-  const absMs = Math.abs(diffMs);
-
-  const minutes = Math.round(absMs / 60000);
-  const hours = Math.round(absMs / 3600000);
-  const days = Math.round(absMs / 86400000);
-
-  const suffix = past ? 'ago' : 'from now';
-
-  if (minutes < 60) return `${minutes} min ${suffix}`;
-  if (hours < 48) return `${hours} hr ${suffix}`;
-  return `${days} days ${suffix}`;
-}
-
-export function formatPercentage(value: number): string {
+// 0.82 → "82%"
+export function formatPercent(value: number): string {
   return `${Math.round(value * 100)}%`;
 }
 
-export function formatPeakRange(label: 'morning' | 'afternoon' | 'night'): string {
-  switch (label) {
-    case 'morning':
-      return '7–11 AM';
-    case 'afternoon':
-      return '1–5 PM';
-    case 'night':
-      return '7–11 PM';
-    default:
-      return label;
-  }
+// ISO → "2h ago" | "3d ago" | "Mar 15"
+export function formatRelative(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  if (d < 7) return `${d}d ago`;
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
+// ISO + overdue → "overdue" | "due in 2 hours" | "due Mar 18"
+export function formatDueTime(iso: string, overdue: boolean): string {
+  if (overdue) return 'overdue';
+  const diff = new Date(iso).getTime() - Date.now();
+  const h = Math.floor(diff / 3600000);
+  if (h < 1) return 'due in < 1 hour';
+  if (h < 24) return `due in ${h}h`;
+  const d = Math.floor(h / 24);
+  return `due in ${d} day${d > 1 ? 's' : ''}`;
+}
+
+// "feynman" → "Feynman" | "modality_switching" → "Modality Switching"
+export function formatTechniqueId(id: string): string {
+  return id.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+// "morning" → "Morning" etc.
+export function formatPeriod(key: string): string {
+  return key.charAt(0).toUpperCase() + key.slice(1);
+}
+
+// Legacy aliases for backward compatibility
+export const formatDurationMinutes = formatDuration;
+export const formatRelativeTime = formatRelative;
+export const formatPercentage = formatPercent;
+export const formatPeakRange = formatPeriod;

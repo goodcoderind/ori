@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import type { DashboardSummary, SessionListItem } from '../../types/api';
 import { StatCard } from '../ui/StatCard';
-import { formatPeakRange } from '../../utils/formatters';
+import { formatPeriod, formatTechniqueId, formatPercent } from '../../utils/formatters';
 
 interface SummaryRowProps {
   summary: DashboardSummary;
@@ -10,17 +10,17 @@ interface SummaryRowProps {
 
 function computePeakFocus(summary: DashboardSummary): string {
   const entries = Object.entries(summary.focus_heatmap) as Array<
-    ['morning' | 'afternoon' | 'night', number]
+    ['morning' | 'afternoon' | 'evening' | 'night', number]
   >;
   const [label] = entries.sort((a, b) => b[1] - a[1])[0];
-  return formatPeakRange(label);
+  return formatPeriod(label);
 }
 
 function computeTopTechnique(summary: DashboardSummary): [string, number] {
-  const entries = Object.entries(summary.technique_success_rates);
-  if (!entries.length) return ['—', 0];
-  const [name, value] = entries.sort((a, b) => b[1] - a[1])[0];
-  return [name, value];
+  // technique_success_rates is now an ARRAY
+  if (!summary.technique_success_rates.length) return ['—', 0];
+  const top = [...summary.technique_success_rates].sort((a, b) => b.success_rate - a.success_rate)[0];
+  return [formatTechniqueId(top.technique_id), top.success_rate];
 }
 
 function computeWeekDelta(sessions: SessionListItem[]): string {
@@ -76,11 +76,10 @@ export function SummaryRow({ summary, sessions }: SummaryRowProps) {
       <motion.div variants={item}>
         <StatCard
           label="Top technique"
-          value={`${topTechniqueValue ? `${Math.round(topTechniqueValue * 100)}% · ` : ''}${topTechnique}`}
+          value={`${topTechniqueValue ? `${formatPercent(topTechniqueValue)} · ` : ''}${topTechnique}`}
           accentColor="#F0A55A"
         />
       </motion.div>
     </motion.div>
   );
 }
-

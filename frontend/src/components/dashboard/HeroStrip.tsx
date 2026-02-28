@@ -25,17 +25,17 @@ function computeStats(sessions: SessionListItem[], summary: DashboardSummary) {
   ).length;
   const sessionDelta = weekSessions - lastWeekSessions;
 
-  // Total hours
-  const totalHours = sessions.reduce((acc, s) => acc + s.duration_minutes, 0) / 60;
+  // Total hours (convert seconds to hours)
+  const totalHours = sessions.reduce((acc, s) => acc + s.duration_seconds, 0) / 3600;
   const weekHours = sessions
     .filter((s) => now - new Date(s.started_at).getTime() <= weekMs)
-    .reduce((acc, s) => acc + s.duration_minutes, 0) / 60;
+    .reduce((acc, s) => acc + s.duration_seconds, 0) / 3600;
   const lastWeekHours = sessions
     .filter((s) => {
       const time = new Date(s.started_at).getTime();
       return time <= now - weekMs && time > now - weekMs * 2;
     })
-    .reduce((acc, s) => acc + s.duration_minutes, 0) / 60;
+    .reduce((acc, s) => acc + s.duration_seconds, 0) / 3600;
   const hoursDelta = weekHours - lastWeekHours;
 
   // Day streak

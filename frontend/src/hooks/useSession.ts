@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { SessionDetail } from '../types/api';
 import { getSessionDetail } from '../api/dashboard';
 import { mockSessionDetail } from '../api/mock';
+import { handleApiError } from '../utils/handleApiError';
 
 // Default to mock data unless explicitly disabled with VITE_USE_MOCK="false"
 const USE_MOCK = (import.meta.env.VITE_USE_MOCK ?? 'true') === 'true';
@@ -37,7 +38,17 @@ export function useSession(sessionId: string | undefined): UseSessionState {
         }
       } catch (err) {
         if (cancelled) return;
-        setError('Unable to load session. Please try again.');
+        const errorInfo = handleApiError(err);
+        setError(errorInfo.message);
+        
+        // Handle 429 retry
+        if (errorInfo.retryAfter) {
+          setTimeout(() => {
+            if (!cancelled) {
+              setReloadKey((k) => k + 1);
+            }
+          }, errorInfo.retryAfter * 1000);
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }

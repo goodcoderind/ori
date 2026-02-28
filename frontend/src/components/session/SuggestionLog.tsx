@@ -1,21 +1,18 @@
 import type { SessionDetail } from '../../types/api';
 import { Card } from '../ui/Card';
+import { formatTechniqueId } from '../../utils/formatters';
 
 interface SuggestionLogProps {
   session: SessionDetail;
 }
 
-const typeLabels: Record<string, string> = {
-  NONE: 'None',
-  MICRO_ASSESS: 'Micro-assessment',
-  TECHNIQUE: 'Technique',
-  BREAK: 'Break',
-  UNASKED_QUESTION: 'Unasked question',
-};
-
 export function SuggestionLog({ session }: SuggestionLogProps) {
-  const rows = session.suggestions_triggered;
-  if (!rows.length) return null;
+  // Filter event_timeline for suggestions
+  const suggestions = session.event_timeline.filter(
+    (e) => e.suggestion_type !== 'NONE'
+  );
+  
+  if (!suggestions.length) return null;
 
   return (
     <Card hoverable className="space-y-4">
@@ -32,41 +29,37 @@ export function SuggestionLog({ session }: SuggestionLogProps) {
         <table className="min-w-full border-separate border-spacing-y-1">
           <thead>
             <tr className="text-[11px] uppercase tracking-[0.18em] text-textFaint">
+              <th className="px-2 py-1 text-left">Time</th>
               <th className="px-2 py-1 text-left">Type</th>
               <th className="px-2 py-1 text-left">Technique</th>
-              <th className="px-2 py-1 text-left">Accepted</th>
-              <th className="px-2 py-1 text-left">Outcome</th>
+              <th className="px-2 py-1 text-left">State</th>
+              <th className="px-2 py-1 text-left">Confidence</th>
+              <th className="px-2 py-1 text-left">Ori State</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((row, idx) => (
+            {suggestions.map((suggestion, idx) => (
               <tr
-                key={`${row.type}-${row.technique_id}-${idx}`}
-                className="rounded-md bg-surfaceRaised/40"
+                key={`${suggestion.ts}-${idx}`}
+                className="rounded-md glass"
               >
+                <td className="px-2 py-1.5 font-monoData text-[10px]">
+                  {new Date(suggestion.ts).toLocaleTimeString()}
+                </td>
                 <td className="px-2 py-1.5 text-textPrimary">
-                  {typeLabels[row.type] ?? row.type}
+                  {suggestion.suggestion_type.replace('_', ' ')}
                 </td>
                 <td className="px-2 py-1.5">
-                  {row.technique_id || '—'}
+                  {suggestion.suggestion_id ? formatTechniqueId(suggestion.suggestion_id) : '—'}
                 </td>
-                <td className="px-2 py-1.5">
-                  {row.accepted ? (
-                    <span className="text-accentMint">✓ Yes</span>
-                  ) : (
-                    <span className="text-textFaint">✗ No</span>
-                  )}
+                <td className="px-2 py-1.5 text-textPrimary">
+                  {suggestion.state_label.replace('_', ' ')}
                 </td>
-                <td className="px-2 py-1.5">
-                  {row.outcome === 'success' && (
-                    <span className="text-accentMint">Success</span>
-                  )}
-                  {row.outcome === 'failure' && (
-                    <span className="text-accentRed">Didn&apos;t help</span>
-                  )}
-                  {row.outcome === 'unknown' && (
-                    <span className="text-textFaint">Unknown</span>
-                  )}
+                <td className="px-2 py-1.5 font-monoData">
+                  {Math.round(suggestion.confidence * 100)}%
+                </td>
+                <td className="px-2 py-1.5 text-textFaint">
+                  {suggestion.ori_state.replace('_', ' ')}
                 </td>
               </tr>
             ))}
@@ -76,4 +69,3 @@ export function SuggestionLog({ session }: SuggestionLogProps) {
     </Card>
   );
 }
-

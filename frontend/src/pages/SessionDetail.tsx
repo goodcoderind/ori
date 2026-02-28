@@ -7,26 +7,16 @@ import { ErrorCard } from '../components/ui/ErrorCard';
 import { Badge } from '../components/ui/Badge';
 import { StateTimeline } from '../components/session/StateTimeline';
 import { SuggestionLog } from '../components/session/SuggestionLog';
-import { InsightBurst } from '../components/session/InsightBurst';
-import { formatDurationMinutes } from '../utils/formatters';
+import { AssessmentLog } from '../components/session/AssessmentLog';
+import { formatDuration, formatPercent } from '../utils/formatters';
 import { stateColors } from '../utils/stateColors';
 import type { LearnerState } from '../types/states';
 
-function computeDominantState(states: Array<{ state: LearnerState; confidence: number }>): LearnerState | null {
-  if (!states.length) return null;
-  const byState = new Map<LearnerState, number>();
-  states.forEach((s) => {
-    byState.set(s.state, (byState.get(s.state) ?? 0) + s.confidence);
-  });
-  let best: LearnerState | null = null;
-  let bestScore = -Infinity;
-  byState.forEach((score, state) => {
-    if (score > bestScore) {
-      bestScore = score;
-      best = state;
-    }
-  });
-  return best;
+function computeDominantState(byState: Partial<Record<LearnerState, number>>): LearnerState | null {
+  if (!byState || Object.keys(byState).length === 0) return null;
+  const entries = Object.entries(byState) as Array<[LearnerState, number]>;
+  const [state] = entries.sort((a, b) => b[1] - a[1])[0];
+  return state;
 }
 
 export function SessionDetail() {
@@ -47,11 +37,7 @@ export function SessionDetail() {
     return <Spinner />;
   }
 
-  const dominant =
-    computeDominantState(session.state_timeline) ??
-    sessions.find((s) => s.session_id === session.session_id)?.dominant_state ??
-    'FLOW';
-
+  const dominant = computeDominantState(session.rolled_up_summary.by_state) ?? 'FLOW';
   const index = sessions.findIndex((s) => s.session_id === session.session_id);
   const prev = index > 0 ? sessions[index - 1] : null;
   const next = index >= 0 && index < sessions.length - 1 ? sessions[index + 1] : null;
@@ -63,6 +49,7 @@ export function SessionDetail() {
       transition={{ duration: 0.6 }}
       className="space-y-6"
     >
+      {/* Header */}
       <div className="flex items-center justify-between gap-4">
         <div className="space-y-1">
           <Link
@@ -75,11 +62,18 @@ export function SessionDetail() {
             {session.topic_label}
           </div>
           <div className="font-serifDisplay text-xl italic text-textPrimary">
-            {session.title}
+            Session {session.session_id}
           </div>
           <div className="text-xs text-textFaint">
-            {new Date(session.started_at).toLocaleString()} ·{' '}
-            {formatDurationMinutes(session.duration_minutes)}
+            {new Date(session.started_at).toLocaleString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+              hour: 'numeric',
+              minute: '2-digit',
+            })}
+            {' · '}
+            {formatDuration(session.duration_seconds)}
           </div>
         </div>
         <div className="flex flex-col items-end gap-2">
@@ -89,66 +83,96 @@ export function SessionDetail() {
               {dominant.replace('_', ' ')}
             </Badge>
           </div>
-          <a
-            href={session.url}
-            target="_blank"
-            rel="noreferrer"
-            className="text-xs text-accentBlue hover:underline"
-          >
-            Open context
-          </a>
         </div>
       </div>
 
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="glass rounded-xl p-4">
+          <div className="text-xs text-textMuted">Nudges</div>
+          <div className="mt-1 font-monoData text-lg font-medium text-textPrimary">
+            {session.n_nudges}
+          </div>
+        </div>
+        {session.avg_confidence !== null && (
+          <div className="glass rounded-xl p-4">
+            <div className="text-xs text-textMuted">Avg Confidence</div>
+            <div className="mt-1 font-monoData text-lg font-medium text-textPrimary">
+              {formatPercent(session.avg_confidence)}
+            </div>
+          </div>
+        )}
+        {session.avg_microassess_score !== null && (
+          <div className="glass rounded-xl p-4">
+            <div className="text-xs text-textMuted">Micro-assess</div>
+            <div className="mt-1 font-monoData text-lg font-medium text-textPrimary">
+              {formatPercent(session.avg_microassess_score)}
+            </div>
+          </div>
+        )}
+        <div className="glass rounded-xl p-4">
+          <div className="text-xs text-textMuted">Total Events</div>
+          <div className="mt-1 font-monoData text-lg font-medium text-textPrimary">
+            {session.rolled_up_summary.total_events}
+          </div>
+        </div>
+      </div>
+
+      {/* Rolled-up Summary */}
+      <div className="glass rounded-2xl p-6">
+        <div className="mb-4 text-xs font-medium uppercase tracking-[0.16em] text-textMuted">
+          Summary
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-textMuted">
+            Suggestions shown: <span className="font-monoData text-textPrimary">{session.rolled_up_summary.suggestions_shown}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            {Object.entries(session.rolled_up_summary.by_state).map(([state, count]) => (
+              <div key={state} className="flex items-center gap-1.5">
+                <div
+                  className="h-2 w-2 rounded-full"
+                  style={{ backgroundColor: stateColors[state as LearnerState] }}
+                />
+                <span className="text-xs text-textMuted">
+                  {state.replace('_', ' ')}: {count}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Event Timeline */}
       <StateTimeline session={session} />
 
+      {/* Assessment Log */}
+      <AssessmentLog session={session} />
+
+      {/* Suggestion Log */}
       <SuggestionLog session={session} />
 
-      <InsightBurst session={session} />
-
-      <div className="mt-4 flex items-center justify-between text-xs text-textMuted">
-        <div className="flex items-center gap-3">
-          <span className="h-1 w-6 rounded-full bg-borderSubtle" />
-          <span>Each dot is coloured by state and sized by confidence.</span>
-        </div>
-        <div className="flex items-center gap-2">
-          {(['FLOW', 'CONFUSION', 'INSIGHT'] as LearnerState[]).map((state) => (
-            <span key={state} className="flex items-center gap-1">
-              <span
-                className="h-2 w-2 rounded-full"
-                style={{ backgroundColor: stateColors[state] }}
-              />
-              <span className="text-[11px] uppercase tracking-[0.16em] text-textFaint">
-                {state}
-              </span>
-            </span>
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-6 flex items-center justify-between text-xs text-textFaint">
-        <div className="flex gap-2">
-          {prev && (
-            <Link
-              to={`/dashboard/session/${prev.session_id}`}
-              className="rounded-full border border-borderSubtle px-3 py-1 hover:border-accentViolet hover:text-textPrimary"
-            >
-              ← Previous session
-            </Link>
-          )}
-        </div>
-        <div className="flex gap-2">
-          {next && (
-            <Link
-              to={`/dashboard/session/${next.session_id}`}
-              className="rounded-full border border-borderSubtle px-3 py-1 hover:border-accentViolet hover:text-textPrimary"
-            >
-              Next session →
-            </Link>
-          )}
-        </div>
+      {/* Navigation */}
+      <div className="flex items-center justify-between border-t border-white/10 pt-6">
+        {prev ? (
+          <Link
+            to={`/dashboard/session/${prev.session_id}`}
+            className="text-sm text-accentViolet hover:underline"
+          >
+            ← Previous session
+          </Link>
+        ) : (
+          <div />
+        )}
+        {next && (
+          <Link
+            to={`/dashboard/session/${next.session_id}`}
+            className="text-sm text-accentViolet hover:underline"
+          >
+            Next session →
+          </Link>
+        )}
       </div>
     </motion.div>
   );
 }
-

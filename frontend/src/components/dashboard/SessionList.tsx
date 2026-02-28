@@ -1,49 +1,23 @@
 import { Link } from 'react-router-dom';
 import type { SessionListItem } from '../../types/api';
 import { Card } from '../ui/Card';
-import { Badge } from '../ui/Badge';
-import { formatDurationMinutes, formatRelativeTime } from '../../utils/formatters';
-import { stateColors } from '../../utils/stateColors';
+import { formatDuration, formatRelative, formatPercent } from '../../utils/formatters';
 
 interface SessionListProps {
   sessions: SessionListItem[];
 }
 
-export function SessionList({ sessions }: SessionListProps) {
-  if (!sessions.length) {
-    return (
-      <section id="sessions">
-        <Card>
-          <div className="text-sm text-textMuted">
-            No sessions yet. Start a study session with the DeepIt extension to see
-            your learning history here.
-          </div>
-        </Card>
-      </section>
-    );
+// Generate a consistent color for a topic label
+function getTopicColor(topic: string): string {
+  const colors = ['#7C6EF5', '#52C99A', '#F0A55A', '#5BA3F5', '#E06060', '#C06EE0'];
+  let hash = 0;
+  for (let i = 0; i < topic.length; i++) {
+    hash = topic.charCodeAt(i) + ((hash << 5) - hash);
   }
+  return colors[Math.abs(hash) % colors.length];
+}
 
-  // Mock insight counts and flow % - in real app, this would come from session detail
-  const getSessionInsights = (sessionId: string) => {
-    const mockInsights: Record<string, number> = {
-      sess_001: 3,
-      sess_002: 1,
-      sess_003: 0,
-      sess_004: 2,
-      sess_005: 1,
-      sess_006: 4,
-      sess_007: 0,
-      sess_008: 0,
-      sess_009: 2,
-    };
-    return mockInsights[sessionId] || 0;
-  };
-
-  const getFlowPercent = (session: SessionListItem) => {
-    // Mock flow % - in real app, calculate from state timeline
-    return session.dominant_state === 'FLOW' ? 0.54 : session.dominant_state === 'INSIGHT' ? 0.48 : 0.32;
-  };
-
+export function SessionList({ sessions }: SessionListProps) {
   return (
     <section id="sessions" className="space-y-3">
       <div className="flex items-end justify-between">
@@ -60,8 +34,7 @@ export function SessionList({ sessions }: SessionListProps) {
       <Card>
         <div className="max-h-96 space-y-1 overflow-y-auto">
           {sessions.slice(0, 10).map((session) => {
-            const insights = getSessionInsights(session.session_id);
-            const flowPercent = getFlowPercent(session);
+            const topicColor = getTopicColor(session.topic_label);
             
             return (
               <Link
@@ -69,70 +42,63 @@ export function SessionList({ sessions }: SessionListProps) {
                 key={session.session_id}
               >
                 <div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs transition-all hover:glass hover:shadow-lg">
-                  {/* State color dot */}
+                  {/* Topic color dot */}
                   <div
                     className="h-2 w-2 shrink-0 rounded-full"
-                    style={{ backgroundColor: stateColors[session.dominant_state] }}
+                    style={{ backgroundColor: topicColor }}
                   />
                   
-                  {/* Topic badge */}
-                  <div className="w-28 shrink-0">
-                    <Badge variant={session.dominant_state}>
+                  {/* Topic label */}
+                  <div className="w-32 shrink-0">
+                    <div 
+                      className="rounded-full px-2 py-0.5 text-[10px] font-medium"
+                      style={{ 
+                        backgroundColor: `${topicColor}20`,
+                        color: topicColor,
+                      }}
+                    >
                       {session.topic_label}
-                    </Badge>
-                  </div>
-                  
-                  {/* Title */}
-                  <div className="flex-1 truncate text-textPrimary">
-                    {session.title.length > 40 
-                      ? `${session.title.substring(0, 40)}...` 
-                      : session.title}
+                    </div>
                   </div>
                   
                   {/* Duration */}
-                  <div className="w-20 shrink-0 font-monoData text-[11px] text-textMuted text-right">
-                    {formatDurationMinutes(session.duration_minutes)}
+                  <div className="w-20 shrink-0 font-monoData text-[11px] text-textMuted">
+                    {formatDuration(session.duration_seconds)}
                   </div>
                   
-                  {/* Flow % bar */}
-                  <div className="w-16 shrink-0">
-                    <div className="h-1.5 w-full overflow-hidden rounded-full glass-strong">
-                      <div
-                        className="h-full bg-gradient-to-r from-accentViolet to-accentMint"
-                        style={{ width: `${flowPercent * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                  
-                  {/* Insight count */}
-                  {insights > 0 && (
-                    <div className="flex items-center gap-1 text-accentAmber">
-                      <span className="text-xs">✨</span>
-                      <span className="font-monoData text-[11px]">{insights}</span>
+                  {/* Confidence */}
+                  {session.avg_confidence !== null && (
+                    <div className="w-16 shrink-0 text-right">
+                      <div className="font-monoData text-[11px] text-textPrimary">
+                        {formatPercent(session.avg_confidence)}
+                      </div>
+                      <div className="text-[9px] text-textFaint">confidence</div>
                     </div>
                   )}
                   
+                  {/* Nudges */}
+                  <div className="w-12 shrink-0 text-right text-textMuted">
+                    {session.n_nudges} nudge{session.n_nudges !== 1 ? 's' : ''}
+                  </div>
+                  
                   {/* Timestamp */}
-                  <div className="w-24 shrink-0 text-[11px] text-right text-textFaint">
-                    {formatRelativeTime(session.started_at)}
+                  <div className="flex-1 text-right font-monoData text-[10px] text-textFaint">
+                    {formatRelative(session.started_at)}
                   </div>
                 </div>
               </Link>
             );
           })}
         </div>
-        {sessions.length > 10 && (
-          <div className="mt-3 border-t border-white/10 pt-3 text-center">
-            <Link
-              to="/dashboard#sessions"
-              className="text-xs text-accentViolet hover:text-accentViolet/80"
-            >
-              View all sessions →
-            </Link>
+        
+        {sessions.length === 0 && (
+          <div className="py-8 text-center">
+            <div className="mb-2 text-2xl">📚</div>
+            <div className="text-sm font-medium text-textPrimary">No sessions yet.</div>
+            <div className="mt-1 text-xs text-textMuted">Start learning to see your sessions here.</div>
           </div>
         )}
       </Card>
     </section>
   );
 }
-

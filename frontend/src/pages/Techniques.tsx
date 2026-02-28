@@ -5,6 +5,7 @@ import { Spinner } from '../components/ui/Spinner';
 import { ErrorCard } from '../components/ui/ErrorCard';
 import { Card } from '../components/ui/Card';
 import { ProgressBar } from '../components/ui/ProgressBar';
+import { formatTechniqueId } from '../utils/formatters';
 
 interface TechniqueDetail {
   description: string;
@@ -140,8 +141,9 @@ export function Techniques() {
     return null;
   }
 
-  const entries = Object.entries(summary.technique_success_rates).sort(
-    (a, b) => b[1] - a[1],
+  // technique_success_rates is now an ARRAY
+  const entries = [...summary.technique_success_rates].sort(
+    (a, b) => b.success_rate - a.success_rate,
   );
 
   return (
@@ -157,24 +159,26 @@ export function Techniques() {
         </div>
         <div className="text-sm text-textMuted">
           DeepIt has observed how you respond to {entries.length} techniques across{' '}
-          {techniqueUsage[entries[0]?.[0] || '']?.count || 0}+ sessions.
+          {entries[0]?.shown_count || 0}+ sessions.
         </div>
       </div>
 
       <div className="space-y-3">
-        {entries.map(([name, successRate]) => {
-          const usage = techniqueUsage[name] || { count: 0, trend: 0 };
-          const detail = techniqueDetails[name];
-          const isExpanded = expanded === name;
+        {entries.map((entry) => {
+          const name = formatTechniqueId(entry.technique_id);
+          const successRate = entry.success_rate;
+          const usage = { count: entry.shown_count, trend: 0 }; // trend not available in API
+          const detail = techniqueDetails[entry.technique_id] || techniqueDetails[name];
+          const isExpanded = expanded === entry.technique_id;
           const trendIcon = usage.trend > 0 ? '↑' : usage.trend < 0 ? '↓' : '→';
           const trendColor = usage.trend > 0 ? '#52C99A' : usage.trend < 0 ? '#E06060' : '#8A89A4';
 
           return (
-            <Card key={name} className="overflow-hidden">
+            <Card key={entry.technique_id} className="overflow-hidden">
               {/* Collapsed State */}
               <button
                 type="button"
-                onClick={() => setExpanded(isExpanded ? null : name)}
+                onClick={() => setExpanded(isExpanded ? null : entry.technique_id)}
                 className="w-full"
               >
                 <div className="flex items-center justify-between p-4 text-left">

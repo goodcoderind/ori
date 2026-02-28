@@ -1,13 +1,18 @@
 import type { DashboardSummary } from '../../types/api';
 import { Card } from '../ui/Card';
-import { formatRelativeTime } from '../../utils/formatters';
+import { formatDueTime } from '../../utils/formatters';
 
 interface UpcomingReviewsProps {
   summary: DashboardSummary;
 }
 
 export function UpcomingReviews({ summary }: UpcomingReviewsProps) {
-  const now = Date.now();
+  // Sort by next_probe_at, overdue items first
+  const sorted = [...summary.upcoming_reviews].sort((a, b) => {
+    if (a.overdue && !b.overdue) return -1;
+    if (!a.overdue && b.overdue) return 1;
+    return new Date(a.next_probe_at).getTime() - new Date(b.next_probe_at).getTime();
+  });
 
   return (
     <section id="reviews" className="space-y-3">
@@ -23,7 +28,7 @@ export function UpcomingReviews({ summary }: UpcomingReviewsProps) {
       </div>
 
       <Card>
-        {summary.upcoming_reviews.length === 0 ? (
+        {sorted.length === 0 ? (
           <div className="py-8 text-center">
             <div className="mb-2 text-2xl">✓</div>
             <div className="text-sm font-medium text-textPrimary">All caught up.</div>
@@ -31,45 +36,34 @@ export function UpcomingReviews({ summary }: UpcomingReviewsProps) {
           </div>
         ) : (
           <div className="space-y-2 text-sm">
-            {summary.upcoming_reviews.map((review) => {
-              const dueTime = new Date(review.due_at).getTime();
-              const overdue = dueTime < now;
-              const hoursUntil = (dueTime - now) / (1000 * 60 * 60);
-              const isToday = hoursUntil >= 0 && hoursUntil < 24;
-              const isSoon = hoursUntil >= 24 && hoursUntil < 48;
-
-              let urgency: 'OVERDUE' | 'TODAY' | 'SOON' | 'LATER' = 'LATER';
+            {sorted.map((review) => {
               let urgencyColor = 'text-textFaint';
-              if (overdue) {
-                urgency = 'OVERDUE';
-                urgencyColor = 'text-accentRed';
-              } else if (isToday) {
-                urgency = 'TODAY';
+              if (review.overdue) {
                 urgencyColor = 'text-accentAmber';
-              } else if (isSoon) {
-                urgency = 'SOON';
-                urgencyColor = 'text-accentBlue';
+              } else {
+                const hoursUntil = (new Date(review.next_probe_at).getTime() - Date.now()) / (1000 * 60 * 60);
+                if (hoursUntil < 24) urgencyColor = 'text-accentAmber';
+                else if (hoursUntil < 48) urgencyColor = 'text-accentBlue';
               }
 
               return (
                 <div
-                  key={`${review.topic}-${review.due_at}`}
+                  key={`${review.topic_label}-${review.next_probe_at}`}
                   className="flex items-center justify-between gap-4 rounded-lg px-3 py-2.5 text-xs transition-all hover:glass hover:shadow-lg"
                 >
-                  <div className="flex-1">
-                    <div className="mb-1 font-medium text-textPrimary">{review.topic}</div>
-                    <div className={`text-[10px] font-medium ${urgencyColor}`}>
-                      {urgency}
+                  <div className="flex items-center gap-3 flex-1">
+                    {review.overdue && (
+                      <div className="h-2 w-2 rounded-full bg-accentAmber" />
+                    )}
+                    <div className="flex-1">
+                      <div className="mb-1 font-medium text-textPrimary">{review.topic_label}</div>
+                      <div className={`text-[10px] font-medium ${urgencyColor}`}>
+                        {review.overdue ? 'OVERDUE' : formatDueTime(review.next_probe_at, review.overdue)}
+                      </div>
                     </div>
                   </div>
                   <div className="font-monoData text-[11px] text-textMuted">
-                    {overdue 
-                      ? `overdue by ${Math.abs(Math.round(hoursUntil))}h`
-                      : isToday
-                      ? `due in ${Math.round(hoursUntil)}h`
-                      : hoursUntil < 48
-                      ? 'due tomorrow'
-                      : formatRelativeTime(review.due_at)}
+                    {formatPercent(review.p_mastery)} mastery
                   </div>
                 </div>
               );
@@ -80,4 +74,3 @@ export function UpcomingReviews({ summary }: UpcomingReviewsProps) {
     </section>
   );
 }
-

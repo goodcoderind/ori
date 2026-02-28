@@ -2,23 +2,16 @@ import { motion } from 'framer-motion';
 import type { DashboardSummary } from '../../types/api';
 import { Card } from '../ui/Card';
 import { ProgressBar } from '../ui/ProgressBar';
+import { formatTechniqueId, formatPercent } from '../../utils/formatters';
 
 interface TechniqueTableProps {
   summary: DashboardSummary;
 }
 
-// Mock usage counts and trends - in real app, this would come from API
-const techniqueUsage: Record<string, { count: number; trend: number }> = {
-  'Feynman Explanation': { count: 24, trend: 5 },
-  'Modality Switching': { count: 18, trend: 8 },
-  'Active Recall': { count: 12, trend: -3 },
-  'Elaborative Interrogation': { count: 9, trend: 2 },
-  Pomodoro: { count: 31, trend: 0 },
-};
-
 export function TechniqueTable({ summary }: TechniqueTableProps) {
-  const entries = Object.entries(summary.technique_success_rates).sort(
-    (a, b) => b[1] - a[1],
+  // technique_success_rates is now an ARRAY
+  const entries = [...summary.technique_success_rates].sort(
+    (a, b) => b.success_rate - a.success_rate,
   );
 
   const container = {
@@ -55,53 +48,34 @@ export function TechniqueTable({ summary }: TechniqueTableProps) {
           animate="visible"
           className="space-y-4"
         >
-          {entries.map(([name, value], index) => {
-            const usage = techniqueUsage[name] || { count: 0, trend: 0 };
+          {entries.map((entry, index) => {
             const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
-            const trendIcon = usage.trend > 0 ? '↑' : usage.trend < 0 ? '↓' : '→';
-            const trendColor = usage.trend > 0 ? '#52C99A' : usage.trend < 0 ? '#E06060' : '#8A89A4';
+            const techniqueName = formatTechniqueId(entry.technique_id);
             
             return (
               <motion.div
-                key={name}
+                key={entry.technique_id}
                 variants={item}
                 className="group relative glass rounded-xl p-4 transition-all hover:border-accentViolet/40"
               >
                 <div className="mb-3 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <span className="text-lg">{medal}</span>
-                    <div className="font-medium text-textPrimary">{name}</div>
+                    <div className="font-medium text-textPrimary">{techniqueName}</div>
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="text-right">
                       <div className="font-monoData text-sm font-medium text-textPrimary">
-                        {Math.round(value * 100)}%
+                        {formatPercent(entry.success_rate)}
                       </div>
-                      <div className="text-xs text-textMuted">YOUR RATE</div>
+                      <div className="text-xs text-textMuted">SUCCESS RATE</div>
                     </div>
                   </div>
                 </div>
-                <div className="mb-2">
-                  <ProgressBar
-                    value={value}
-                    color="#7C6EF5"
-                    height={8}
-                  />
-                </div>
-                <div className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-4">
-                    <div>
-                      <span className="font-monoData text-textMuted">{usage.count}x</span>
-                      <span className="ml-1 text-textFaint">USED</span>
-                    </div>
-                    <div style={{ color: trendColor }}>
-                      <span>{trendIcon}</span>
-                      {usage.trend !== 0 && (
-                        <span className="ml-1">{Math.abs(usage.trend)}%</span>
-                      )}
-                      <span className="ml-1 text-textFaint">TREND</span>
-                    </div>
-                  </div>
+                <ProgressBar value={entry.success_rate} color="#7C6EF5" />
+                <div className="mt-2 flex items-center justify-between text-xs text-textMuted">
+                  <span>shown {entry.shown_count}×</span>
+                  <span>accepted {formatPercent(entry.acceptance_rate)}</span>
                 </div>
               </motion.div>
             );
@@ -111,4 +85,3 @@ export function TechniqueTable({ summary }: TechniqueTableProps) {
     </section>
   );
 }
-
