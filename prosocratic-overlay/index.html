@@ -31,13 +31,14 @@
 <body>
   <h1>ProSocratic — Dev Mode</h1>
   <p>
-    This is a host page simulation. The overlay is injected by the content script
-    and lives in a Shadow DOM at the bottom-right corner. Click Ori to open it.
-    A demo nudge will appear after 15 seconds of inactivity.
+    This is a host page for development. The overlay is injected by the content script
+    and lives in a Shadow DOM at the top-right corner. Click Ori to open it,
+    then click "Start Studying" to begin a session.
   </p>
   <p>
-    Scroll down to generate scroll signals. Type to generate keystroke rhythm data.
-    The behavioral sensor is running and sending signals to the background service worker.
+    Once a session is active, scroll and type to generate real behavioral signals.
+    The telemetry engine collects numeric aggregates and forwards them to the backend
+    every 30 seconds. Nudges only appear when the backend policy engine detects a real signal.
   </p>
 
   <!-- Filler content for scrolling -->

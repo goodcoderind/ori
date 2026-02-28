@@ -1,11 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { SessionDetail } from '../types/api';
 import { getSessionDetail } from '../api/dashboard';
-import { mockSessionDetail } from '../api/mock';
 import { handleApiError } from '../utils/handleApiError';
-
-// Default to mock data unless explicitly disabled with VITE_USE_MOCK="false"
-const USE_MOCK = (import.meta.env.VITE_USE_MOCK ?? 'true') === 'true';
 
 interface UseSessionState {
   session: SessionDetail | null;
@@ -28,30 +24,20 @@ export function useSession(sessionId: string | undefined): UseSessionState {
       setLoading(true);
       setError(null);
       try {
-        if (USE_MOCK) {
-          if (cancelled) return;
-          setSession(mockSessionDetail);
-        } else {
-          const res = await getSessionDetail(sessionId);
-          if (cancelled) return;
-          setSession(res.data);
-        }
+        const res = await getSessionDetail(sessionId!);
+        if (cancelled) return;
+        setSession(res.data);
       } catch (err) {
         if (cancelled) return;
-        if (USE_MOCK) {
-        setError('Unable to load session. Please try again.');
-        } else {
-          const errorInfo = handleApiError(err);
-          setError(errorInfo.message);
-          
-          // Handle 429 retry
-          if (errorInfo.retryAfter) {
-            setTimeout(() => {
-              if (!cancelled) {
-                setReloadKey((k) => k + 1);
-              }
-            }, errorInfo.retryAfter * 1000);
-          }
+        const errorInfo = handleApiError(err);
+        setError(errorInfo.message);
+
+        if (errorInfo.retryAfter) {
+          setTimeout(() => {
+            if (!cancelled) {
+              setReloadKey((k) => k + 1);
+            }
+          }, errorInfo.retryAfter * 1000);
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -72,4 +58,3 @@ export function useSession(sessionId: string | undefined): UseSessionState {
     refetch: () => setReloadKey((k) => k + 1),
   };
 }
-

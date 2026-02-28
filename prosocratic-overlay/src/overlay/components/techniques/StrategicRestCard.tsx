@@ -18,7 +18,7 @@ const GLASS = {
 const BLUE = '#60a5fa'
 
 export default function StrategicRestCard() {
-  const { activeTechnique, setTechniquePhase, updateTechnique, endTechnique, advanceDemo, addOriMessage } = useOverlayStore()
+  const { activeTechnique, setTechniquePhase, updateTechnique, endTechnique, addOriMessage } = useOverlayStore()
   const intervalRef = useRef<number | null>(null)
 
   useEffect(() => {
@@ -73,7 +73,7 @@ export default function StrategicRestCard() {
         <div style={{ marginTop: '10px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '8px' }}>
           <motion.button whileHover={{ color: 'rgba(255,255,255,0.4)' }} onClick={() => {
             addOriMessage("Okay, I'll check back later. Your brain does its best work with breaks though!")
-            endTechnique(); advanceDemo()
+            endTechnique()
           }} style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.18)', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit', padding: '2px 0' }}>
             I'm fine
           </motion.button>

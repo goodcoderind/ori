@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 
 from app.services.minimax_client import MiniMaxClient, get_minimax_client
 
@@ -145,7 +146,12 @@ class QuestionEngine:
         )
 
         try:
-            data = json.loads(raw)
+            # MiniMax M2.5 is a reasoning model that may wrap output in
+            # <think>...</think> tags and ```json fences. Strip both.
+            cleaned = re.sub(r"<think>.*?</think>", "", raw, flags=re.DOTALL).strip()
+            cleaned = re.sub(r"```json\s*", "", cleaned)
+            cleaned = re.sub(r"```\s*$", "", cleaned).strip()
+            data = json.loads(cleaned)
             return AnswerResult(
                 direct_answer=data["direct_answer"],
                 follow_up_question=data["follow_up"]["question"],

@@ -8,7 +8,13 @@
       "Bash(gtimeout 4:*)",
       "Bash(chmod +x:*)",
       "Bash(python3:*)",
-      "Bash(bash:*)"
+      "Bash(bash:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run:*)",
+      "Bash(curl:*)",
+      "Bash(lsof:*)",
+      "Bash(make run:*)",
+      "Bash(kill 8005:*)"
     ]
   }
 }

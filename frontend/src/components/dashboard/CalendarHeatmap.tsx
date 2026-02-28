@@ -1,7 +1,5 @@
 import { useMemo } from 'react';
 import type { SessionListItem } from '../../types/api';
-import { stateColors } from '../../utils/stateColors';
-import { LearnerState } from '../../types/states';
 
 interface CalendarHeatmapProps {
   sessions: SessionListItem[];
@@ -10,7 +8,7 @@ interface CalendarHeatmapProps {
 export function CalendarHeatmap({ sessions }: CalendarHeatmapProps) {
   const { weeks, monthLabels } = useMemo(() => {
     const now = new Date();
-    const weeks: Array<Array<{ date: Date; minutes: number; state: LearnerState | null; intensity: number }>> = [];
+    const weeks: Array<Array<{ date: Date; minutes: number; hasSession: boolean; intensity: number }>> = [];
     const monthLabels: string[] = [];
     
     // Get last 12 weeks
@@ -37,28 +35,20 @@ export function CalendarHeatmap({ sessions }: CalendarHeatmapProps) {
     let lastMonth = -1;
     
     for (let week = 0; week < weekCount; week++) {
-      const weekData: Array<{ date: Date; minutes: number; state: LearnerState | null; intensity: number }> = [];
-      
+      const weekData: Array<{ date: Date; minutes: number; hasSession: boolean; intensity: number }> = [];
+
       for (let day = 0; day < 7; day++) {
         const dateStr = currentDate.toISOString().split('T')[0];
         const sessionData = sessionsByDate.get(dateStr);
-        
-        let dominantState: LearnerState | null = null;
-        let intensity = 0;
-        
-        if (sessionData) {
-          // Since sessions don't have dominant_state, use FLOW as default
-          // In a real app, you'd fetch session details to get actual state
-          dominantState = 'FLOW';
-          
-          // Intensity based on minutes (0-1 scale, max 120 min = 1.0)
-          intensity = Math.min(sessionData.minutes / 120, 1);
-        }
-        
+
+        const hasSession = !!sessionData;
+        // Intensity based on minutes (0-1 scale, max 120 min = 1.0)
+        const intensity = hasSession ? Math.min(sessionData.minutes / 120, 1) : 0;
+
         weekData.push({
           date: new Date(currentDate),
           minutes: sessionData?.minutes || 0,
-          state: dominantState,
+          hasSession,
           intensity,
         });
         
@@ -133,11 +123,10 @@ export function CalendarHeatmap({ sessions }: CalendarHeatmapProps) {
               {weeks.map((week, weekIdx) => (
                 <div key={weekIdx} className="flex flex-col gap-1">
                   {week.map((day, dayIdx) => {
-                    const color = day.state
-                      ? stateColors[day.state]
-                      : 'transparent';
-                    const opacity = day.state ? 0.3 + day.intensity * 0.7 : 0.1;
-                    
+                    // Use a neutral violet when a session exists; transparent when none
+                    const color = day.hasSession ? '#8B5CF6' : 'transparent';
+                    const opacity = day.hasSession ? 0.3 + day.intensity * 0.7 : 0.1;
+
                     return (
                       <div
                         key={dayIdx}
@@ -145,11 +134,11 @@ export function CalendarHeatmap({ sessions }: CalendarHeatmapProps) {
                         style={{
                           width: cellSize,
                           height: cellSize,
-                          backgroundColor: day.state ? color : 'transparent',
+                          backgroundColor: color,
                           opacity,
-                          borderColor: day.state ? color : 'rgba(255, 255, 255, 0.1)',
+                          borderColor: day.hasSession ? color : 'rgba(255, 255, 255, 0.1)',
                         }}
-                        title={`${day.date.toLocaleDateString()}: ${day.minutes > 0 ? `${day.minutes} min, ${day.state}` : 'No session'}`}
+                        title={`${day.date.toLocaleDateString()}: ${day.minutes > 0 ? `${Math.round(day.minutes)} min` : 'No session'}`}
                       />
                     );
                   })}

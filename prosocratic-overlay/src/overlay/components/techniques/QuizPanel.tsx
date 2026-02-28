@@ -284,7 +284,7 @@ function QuizCardView({ card, cardNumber, total, dots, onCorrect, onWrong, onNex
 export default function QuizPanel() {
   const {
     activeTechnique, setTechniquePhase, answerQuizCard,
-    nextQuizCard, endTechnique, advanceDemo, addOriMessage,
+    nextQuizCard, endTechnique, addOriMessage,
     triggerConfetti,
   } = useOverlayStore()
 
@@ -319,7 +319,7 @@ export default function QuizPanel() {
         </p>
         <div style={{ display: 'flex', gap: '8px' }}>
           <TryIt label="Start quiz" onClick={() => setTechniquePhase('quiz_active')} />
-          <NoThanks onClick={() => { endTechnique(); advanceDemo() }} />
+          <NoThanks onClick={() => endTechnique()} />
         </div>
       </motion.div>
     )

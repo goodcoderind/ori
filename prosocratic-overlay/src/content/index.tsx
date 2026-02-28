@@ -62,8 +62,11 @@ function initOverlay() {
   const root = createRoot(container)
   root.render(createElement(App, null))
 
-  // 6. Extract page context and send to background
-  extractAndSendPageContext()
+  // 6. Page context is now sent when the user clicks "Start Studying"
+  //    in the overlay (store.beginSession). No auto-session on page load.
+
+  // 7. Mirror extension user ID to localStorage so the dashboard can use it
+  syncUserIdToLocalStorage()
 }
 
 // ─── Page Context Extraction ──────────────────────────────────
@@ -97,6 +100,22 @@ function extractAndSendPageContext() {
     })
   } catch {
     // Extension context may not be available in dev mode
+  }
+}
+
+// ─── User ID Sync ────────────────────────────────────────────
+// Mirror the extension's UUID from chrome.storage.local to localStorage
+// so the dashboard (running at localhost:5173) can share the same identity.
+function syncUserIdToLocalStorage() {
+  try {
+    chrome.storage.local.get('prosocratic_user_id', (result) => {
+      const uid = result?.prosocratic_user_id
+      if (uid) {
+        localStorage.setItem('prosocratic_user_id', uid)
+      }
+    })
+  } catch {
+    // Not in extension context
   }
 }
 

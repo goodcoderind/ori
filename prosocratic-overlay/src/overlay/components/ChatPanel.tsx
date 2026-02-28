@@ -5,6 +5,9 @@
  * Scrollable content area so technique cards never get cut off.
  * 320px wide. Confetti layer fires on correct quiz answers.
  * ContentBar at top lets user specify what they're studying.
+ *
+ * Session-gated: Shows a "Start Studying" screen until the user
+ * explicitly begins a session. No telemetry or nudges until then.
  */
 
 import { useEffect, useRef, useState } from 'react'
@@ -55,7 +58,7 @@ function ContentBar() {
               if (e.key === 'Escape') setEditing(false)
             }}
             onKeyUp={e => e.stopPropagation()}
-            placeholder="e.g. IB Biology HL — DNA Replication"
+            placeholder="e.g. IB Biology HL, Calculus II"
             style={{
               flex: 1, background: 'transparent', border: 'none', outline: 'none',
               color: 'rgba(255,255,255,0.85)', fontSize: '11.5px', fontFamily: 'inherit',
@@ -105,12 +108,108 @@ function ContentBar() {
   )
 }
 
+// ─── Session Start Screen ───────────────────────────────────
+function SessionStartScreen() {
+  const { beginSession } = useOverlayStore()
+  const [starting, setStarting] = useState(false)
+
+  const handleStart = async () => {
+    setStarting(true)
+    await beginSession()
+    // sessionActive will flip to true, causing re-render
+  }
+
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '24px 16px',
+      gap: '16px',
+      minHeight: '160px',
+    }}>
+      <p style={{
+        fontSize: '13px',
+        color: 'rgba(255,255,255,0.5)',
+        textAlign: 'center',
+        lineHeight: 1.5,
+        margin: 0,
+      }}>
+        Ori will observe your study patterns and suggest techniques when it detects a real signal.
+      </p>
+      <motion.button
+        onClick={handleStart}
+        disabled={starting}
+        whileHover={{ scale: 1.03 }}
+        whileTap={{ scale: 0.97 }}
+        style={{
+          background: BLUE,
+          color: '#fff',
+          border: 'none',
+          borderRadius: '10px',
+          padding: '10px 24px',
+          fontSize: '13px',
+          fontWeight: 600,
+          fontFamily: 'inherit',
+          cursor: starting ? 'wait' : 'pointer',
+          opacity: starting ? 0.6 : 1,
+          boxShadow: '0 2px 12px rgba(96,165,250,0.35)',
+          transition: 'opacity 0.2s',
+        }}
+      >
+        {starting ? 'Starting...' : 'Start Studying'}
+      </motion.button>
+      <p style={{
+        fontSize: '10px',
+        color: 'rgba(255,255,255,0.2)',
+        textAlign: 'center',
+        margin: 0,
+      }}>
+        No data is collected until you start.
+      </p>
+    </div>
+  )
+}
+
+// ─── Active Session Controls ─────────────────────────────────
+function SessionControls() {
+  const { stopSession } = useOverlayStore()
+
+  return (
+    <div style={{
+      display: 'flex',
+      justifyContent: 'flex-end',
+      padding: '4px 12px 0',
+    }}>
+      <motion.button
+        onClick={stopSession}
+        whileHover={{ color: 'rgba(255,255,255,0.5)' }}
+        style={{
+          background: 'transparent',
+          border: 'none',
+          color: 'rgba(255,255,255,0.18)',
+          fontSize: '10px',
+          cursor: 'pointer',
+          fontFamily: 'inherit',
+          padding: '2px 4px',
+        }}
+      >
+        End session
+      </motion.button>
+    </div>
+  )
+}
+
 // ─── Main Panel ──────────────────────────────────────────────
 export default function ChatPanel() {
-  const { activeNudge, transparencyData, messages, activeTechnique, showConfetti } = useOverlayStore()
+  const {
+    sessionActive, activeNudge, transparencyData,
+    messages, activeTechnique, showConfetti,
+  } = useOverlayStore()
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  // Start behavioral sensors (keystrokes, idle, page detection)
+  // Wire up behavioral sensors — gated behind sessionActive internally
   useBehavioralSensors()
 
   const hasContent = messages.length > 0 || activeNudge || activeTechnique
@@ -126,7 +225,7 @@ export default function ChatPanel() {
     <div
       style={{
         width: '320px',
-        maxHeight: hasContent ? '580px' : '300px',
+        maxHeight: sessionActive && hasContent ? '580px' : '300px',
         background: 'rgba(10, 10, 10, 0.75)',
         backdropFilter: 'blur(40px) saturate(180%)',
         WebkitBackdropFilter: 'blur(40px) saturate(180%)',
@@ -138,49 +237,60 @@ export default function ChatPanel() {
         overflow: 'hidden',
         fontFamily: "'Inter', system-ui, sans-serif",
         transition: 'max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-        position: 'relative',   // for confetti absolute positioning
+        position: 'relative',
       }}
     >
       {/* Confetti layer — fires on correct quiz answers */}
       <ConfettiBurst active={showConfetti} />
 
-      {/* Study topic picker */}
-      <ContentBar />
+      {!sessionActive ? (
+        /* ── Pre-session: show start screen ── */
+        <SessionStartScreen />
+      ) : (
+        /* ── Active session: full UI ── */
+        <>
+          {/* Study topic picker */}
+          <ContentBar />
 
-      {/* Divider */}
-      <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '8px 12px 0' }} />
+          {/* Session controls (end session) */}
+          <SessionControls />
 
-      {/* Scrollable content area — minHeight:0 is CRITICAL for flex+overflow:auto to work */}
-      <div
-        ref={scrollRef}
-        style={{
-          flex: 1,
-          minHeight: 0,            // ← fixes flexbox overflow scroll bug
-          overflowY: 'auto',
-          overflowX: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          scrollbarWidth: 'none',  // hide scrollbar on Firefox
-        }}
-      >
-        {/* Nudge Card */}
-        {activeNudge && !activeTechnique && <NudgeCard nudge={activeNudge} />}
+          {/* Divider */}
+          <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '4px 12px 0' }} />
 
-        {/* Messages */}
-        <MessageList />
+          {/* Scrollable content area */}
+          <div
+            ref={scrollRef}
+            style={{
+              flex: 1,
+              minHeight: 0,
+              overflowY: 'auto',
+              overflowX: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+              scrollbarWidth: 'none',
+            }}
+          >
+            {/* Nudge Card — only from real backend responses */}
+            {activeNudge && !activeTechnique && <NudgeCard nudge={activeNudge} />}
 
-        {/* Active Technique — renders inline, expanding smoothly */}
-        <TechniqueRenderer />
+            {/* Messages */}
+            <MessageList />
 
-        {/* Transparency */}
-        {transparencyData && !activeTechnique && <TransparencyCard data={transparencyData} />}
+            {/* Active Technique — renders inline */}
+            <TechniqueRenderer />
 
-        {/* Bottom padding so last element isn't flush against InputBar */}
-        <div style={{ height: '8px', flexShrink: 0 }} />
-      </div>
+            {/* Transparency */}
+            {transparencyData && !activeTechnique && <TransparencyCard data={transparencyData} />}
 
-      {/* Input — always at bottom */}
-      <InputBar />
+            {/* Bottom padding */}
+            <div style={{ height: '8px', flexShrink: 0 }} />
+          </div>
+
+          {/* Input — always at bottom */}
+          <InputBar />
+        </>
+      )}
     </div>
   )
 }

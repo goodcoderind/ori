@@ -3,6 +3,7 @@ import { useDashboard } from '../hooks/useDashboard';
 import { Spinner } from '../components/ui/Spinner';
 import { ErrorCard } from '../components/ui/ErrorCard';
 import { EmptyState } from '../components/ui/EmptyState';
+import { ErrorBoundary } from '../components/ui/ErrorBoundary';
 import { HeroStrip } from '../components/dashboard/HeroStrip';
 import { FocusRhythmChart } from '../components/dashboard/FocusRhythmChart';
 import { CalendarHeatmap } from '../components/dashboard/CalendarHeatmap';
@@ -45,6 +46,7 @@ export function Dashboard() {
   }
 
   return (
+    <ErrorBoundary>
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -59,28 +61,15 @@ export function Dashboard() {
           <HeroStrip summary={summary} sessions={sessions} />
         </div>
 
-        {/* Row 2: Left side + Center Panda + Right side */}
+        {/* Row 2: Focus Rhythm + Calendar Heatmap */}
         {/* Focus Rhythm - Large left card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="col-span-12 lg:col-span-5 bento-cell bento-cell-indigo p-4"
+          className="col-span-12 lg:col-span-6 bento-cell bento-cell-indigo p-4"
         >
           <FocusRhythmChart summary={summary} sessions={sessions} />
-        </motion.div>
-
-        {/* Center Panda Placeholder */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="col-span-12 lg:col-span-2 panda-placeholder min-h-[300px] lg:min-h-[400px]"
-        >
-          <div className="text-center">
-            <div className="text-4xl mb-2">🐼</div>
-            <div className="text-sm font-medium">Panda Placeholder</div>
-          </div>
         </motion.div>
 
         {/* Calendar Heatmap - Right side */}
@@ -88,7 +77,7 @@ export function Dashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.15 }}
-          className="col-span-12 lg:col-span-5 bento-cell bento-cell-teal p-4"
+          className="col-span-12 lg:col-span-6 bento-cell bento-cell-teal p-4"
         >
           <CalendarHeatmap sessions={sessions} />
         </motion.div>
@@ -166,5 +155,6 @@ export function Dashboard() {
 
       </div>
     </motion.div>
+    </ErrorBoundary>
   );
 }
