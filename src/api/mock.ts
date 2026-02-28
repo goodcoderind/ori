@@ -1,0 +1,138 @@
+import type { DashboardSummary, SessionDetail, SessionListItem } from '../types/api';
+
+export const mockSummary: DashboardSummary = {
+  focus_state_distribution: {
+    FLOW: 0.38,
+    CONFUSION: 0.22,
+    MIND_WANDER: 0.18,
+    INSIGHT: 0.1,
+    FRUSTRATION: 0.07,
+    BOREDOM: 0.05,
+  },
+  focus_heatmap: { morning: 0.52, afternoon: 0.44, night: 0.81 },
+  technique_success_rates: {
+    'Feynman Explanation': 0.82,
+    'Modality Switching': 0.74,
+    'Active Recall': 0.69,
+    'Elaborative Interrogation': 0.61,
+    Pomodoro: 0.88,
+  },
+  mastery_by_topic: {
+    'Machine Learning': 0.71,
+    Calculus: 0.55,
+    'World History': 0.43,
+    'Organic Chemistry': 0.29,
+  },
+  upcoming_reviews: [
+    { topic: 'Backpropagation', due_at: new Date(Date.now() + 3600000).toISOString() },
+    { topic: 'Chain Rule', due_at: new Date(Date.now() + 86400000).toISOString() },
+    { topic: 'WW2 Causes', due_at: new Date(Date.now() + 172800000).toISOString() },
+  ],
+};
+
+export const mockSessions: SessionListItem[] = [
+  {
+    session_id: 'sess_001',
+    url: 'https://example.com/ml-notes',
+    title: 'Introduction to Neural Networks',
+    topic_label: 'Machine Learning',
+    started_at: new Date(Date.now() - 7200000).toISOString(),
+    duration_minutes: 42,
+    dominant_state: 'FLOW',
+  },
+  {
+    session_id: 'sess_002',
+    url: 'https://example.com/calculus-limits',
+    title: 'Limits and Continuity',
+    topic_label: 'Calculus',
+    started_at: new Date(Date.now() - 10800000).toISOString(),
+    duration_minutes: 35,
+    dominant_state: 'CONFUSION',
+  },
+  {
+    session_id: 'sess_003',
+    url: 'https://example.com/history-ww2',
+    title: 'WW2: Causes and Consequences',
+    topic_label: 'World History',
+    started_at: new Date(Date.now() - 21600000).toISOString(),
+    duration_minutes: 50,
+    dominant_state: 'MIND_WANDER',
+  },
+  {
+    session_id: 'sess_004',
+    url: 'https://example.com/orgo-bonds',
+    title: 'Covalent Bonding and Orbitals',
+    topic_label: 'Organic Chemistry',
+    started_at: new Date(Date.now() - 43200000).toISOString(),
+    duration_minutes: 60,
+    dominant_state: 'FRUSTRATION',
+  },
+  {
+    session_id: 'sess_005',
+    url: 'https://example.com/pomodoro-session',
+    title: 'Deep work sprint',
+    topic_label: 'Machine Learning',
+    started_at: new Date(Date.now() - 5400000).toISOString(),
+    duration_minutes: 25,
+    dominant_state: 'FLOW',
+  },
+  {
+    session_id: 'sess_006',
+    url: 'https://example.com/ml-backprop',
+    title: 'Backpropagation Derivations',
+    topic_label: 'Machine Learning',
+    started_at: new Date(Date.now() - 86400000).toISOString(),
+    duration_minutes: 55,
+    dominant_state: 'INSIGHT',
+  },
+  {
+    session_id: 'sess_007',
+    url: 'https://example.com/calculus-integrals',
+    title: 'Definite Integrals Practice',
+    topic_label: 'Calculus',
+    started_at: new Date(Date.now() - 172800000).toISOString(),
+    duration_minutes: 40,
+    dominant_state: 'OVERLOAD',
+  },
+  {
+    session_id: 'sess_008',
+    url: 'https://example.com/history-cold-war',
+    title: 'The Cold War Timeline',
+    topic_label: 'World History',
+    started_at: new Date(Date.now() - 259200000).toISOString(),
+    duration_minutes: 30,
+    dominant_state: 'BOREDOM',
+  },
+  {
+    session_id: 'sess_009',
+    url: 'https://example.com/ml-regularization',
+    title: 'Regularization Techniques',
+    topic_label: 'Machine Learning',
+    started_at: new Date(Date.now() - 28800000).toISOString(),
+    duration_minutes: 48,
+    dominant_state: 'CONFUSION',
+  },
+];
+
+export const mockSessionDetail: SessionDetail = {
+  session_id: 'sess_001',
+  topic_label: 'Machine Learning',
+  url: 'https://example.com/ml-notes',
+  title: 'Introduction to Neural Networks',
+  started_at: new Date(Date.now() - 7200000).toISOString(),
+  duration_minutes: 42,
+  insight_moments: 3,
+  state_timeline: [
+    { timestamp: new Date(Date.now() - 7200000).toISOString(), state: 'FLOW', confidence: 0.85 },
+    { timestamp: new Date(Date.now() - 6900000).toISOString(), state: 'CONFUSION', confidence: 0.91 },
+    { timestamp: new Date(Date.now() - 6600000).toISOString(), state: 'INSIGHT', confidence: 0.94 },
+    { timestamp: new Date(Date.now() - 6300000).toISOString(), state: 'FLOW', confidence: 0.88 },
+    { timestamp: new Date(Date.now() - 6000000).toISOString(), state: 'MIND_WANDER', confidence: 0.76 },
+    { timestamp: new Date(Date.now() - 5700000).toISOString(), state: 'FLOW', confidence: 0.83 },
+  ],
+  suggestions_triggered: [
+    { type: 'TECHNIQUE', technique_id: 'FEYNMAN', accepted: true, outcome: 'success' },
+    { type: 'BREAK', technique_id: 'POMODORO', accepted: false, outcome: 'unknown' },
+  ],
+};
+
