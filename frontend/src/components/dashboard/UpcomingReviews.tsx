@@ -15,21 +15,19 @@ export function UpcomingReviews({ summary }: UpcomingReviewsProps) {
   });
 
   return (
-    <section id="reviews" className="space-y-3">
-      <div className="flex items-end justify-between">
-        <div>
-          <div className="text-sm font-medium uppercase tracking-[0.16em] text-textMuted">
+    <div className="w-full h-full flex flex-col">
+      <div className="flex-shrink-0 mb-3">
+        <div className="text-sm font-medium uppercase tracking-[0.16em] text-textMuted">
             Upcoming reviews
           </div>
-          <div className="mt-1 font-serifDisplay text-xl italic text-textPrimary">
+        <div className="mt-0.5 font-serifDisplay text-lg italic text-textPrimary">
             Keeping ideas from fading
-          </div>
         </div>
       </div>
 
-      <div className="w-full">
+      <div className="flex-1 overflow-y-auto min-h-0">
         {sorted.length === 0 ? (
-          <div className="py-8 text-center">
+          <div className="py-4 text-center">
             <div className="mb-2 text-2xl">✓</div>
             <div className="text-sm font-medium text-textPrimary">All caught up.</div>
             <div className="mt-1 text-xs text-textMuted">No reviews due right now.</div>
@@ -71,6 +69,6 @@ export function UpcomingReviews({ summary }: UpcomingReviewsProps) {
           </div>
         )}
       </div>
-    </section>
+    </div>
   );
 }

@@ -1,12 +1,12 @@
 import type { LearnerState } from '../types/states';
 
-// Sophisticated color palette - calm intelligence
+// Poppy Modern AI Palette - Differentiated by state
 export const stateColors: Record<LearnerState, string> = {
-  FLOW: '#9C7CFF',        // Primary accent - flow state
-  INSIGHT: '#6EE7F9',     // Highlight - insights
-  CONFUSION: '#BFA8FF',   // Secondary accent - confusion
-  MIND_WANDER: '#9C7CFF', // Primary accent - mind wander
-  FRUSTRATION: '#BFA8FF', // Secondary accent - frustration
+  FLOW: '#61A5FA',        // Primary blue - flow state
+  INSIGHT: '#2DD4BF',     // Teal - insights
+  CONFUSION: '#A78BFA',   // Purple - confusion
+  MIND_WANDER: '#61A5FA', // Primary blue - mind wander
+  FRUSTRATION: '#FBBF24', // Yellow - frustration
   OVERLOAD: '#EF4444',    // Red - overload (keep for urgency)
-  BOREDOM: 'rgba(248, 250, 252, 0.3)', // Muted - boredom
+  BOREDOM: '#64748B',     // Muted gray - boredom
 };

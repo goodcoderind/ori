@@ -72,7 +72,7 @@ export function TechniqueTable({ summary }: TechniqueTableProps) {
                     </div>
                   </div>
                 </div>
-                <ProgressBar value={entry.success_rate} color="#9C7CFF" />
+                <ProgressBar value={entry.success_rate} color="#FACC15" />
                 <div className="mt-2 flex items-center justify-between text-xs text-textMuted">
                   <span>shown {entry.shown_count}×</span>
                   <span>accepted {formatPercent(entry.acceptance_rate)}</span>

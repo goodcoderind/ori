@@ -279,13 +279,13 @@ export function FocusRhythmChart({ summary, sessions }: FocusRhythmChartProps) {
               />
               <Tooltip
                 contentStyle={{
-                  background: 'rgba(28, 28, 40, 0.95)',
+                  background: 'rgba(30, 41, 59, 0.95)',
                   backdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(156, 124, 255, 0.2)',
+                  border: '1px solid rgba(167, 139, 250, 0.4)',
                   borderRadius: 12,
                   fontSize: 12,
                   boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
-                  color: '#FFFFFF',
+                  color: '#F1F5F9',
                 }}
                 formatter={(value: number, name: string) => [
                   `${Math.round(value)} min`,

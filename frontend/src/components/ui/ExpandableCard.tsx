@@ -121,7 +121,7 @@ export function ExpandableCard({ id, children, expandedContent, className = '' }
                   width: 'min(1000px, 90vw)',
                   maxHeight: '85vh',
                   transformOrigin: 'center center',
-                  background: 'rgba(28, 28, 40, 0.95)',
+                  background: 'rgba(30, 41, 59, 0.95)',
                   backdropFilter: 'blur(20px) saturate(180%)',
                   WebkitBackdropFilter: 'blur(20px) saturate(180%)',
                   border: '1px solid rgba(255, 255, 255, 0.1)',

@@ -19,20 +19,18 @@ function getTopicColor(topic: string): string {
 
 export function SessionList({ sessions }: SessionListProps) {
   return (
-    <section id="sessions" className="space-y-3">
-      <div className="flex items-end justify-between">
-        <div>
-          <div className="text-sm font-medium uppercase tracking-[0.16em] text-textMuted">
+    <div className="w-full h-full flex flex-col">
+      <div className="flex-shrink-0 mb-3">
+        <div className="text-sm font-medium uppercase tracking-[0.16em] text-textMuted">
             Session Feed
           </div>
-          <div className="mt-1 font-serifDisplay text-xl italic text-textPrimary">
+        <div className="mt-0.5 font-serifDisplay text-lg italic text-textPrimary">
             Your recent learning
-          </div>
         </div>
       </div>
 
-      <div className="w-full">
-        <div className="max-h-96 space-y-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto min-h-0">
+        <div className="space-y-1">
           {sessions.slice(0, 10).map((session) => {
             const topicColor = getTopicColor(session.topic_label);
             
@@ -99,6 +97,6 @@ export function SessionList({ sessions }: SessionListProps) {
           </div>
         )}
       </div>
-    </section>
+    </div>
   );
 }

@@ -63,11 +63,11 @@ export function FocusHeatmap({ summary, compact = false }: FocusHeatmapProps) {
             />
             <RechartsTooltip
               contentStyle={{
-                background: 'rgba(28, 28, 40, 0.95)',
-                border: '1px solid rgba(156, 124, 255, 0.2)',
+                background: 'rgba(30, 41, 59, 0.95)',
+                border: '1px solid rgba(97, 165, 250, 0.4)',
                 borderRadius: 12,
                 fontSize: 12,
-                color: '#FFFFFF',
+                color: '#F1F5F9',
                 boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
               }}
               formatter={(value: number, name, { payload }) => [
@@ -82,9 +82,9 @@ export function FocusHeatmap({ summary, compact = false }: FocusHeatmapProps) {
             />
             <defs>
               <linearGradient id="focusGradient" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#9C7CFF" stopOpacity="0.4" />
-                <stop offset="50%" stopColor="#BFA8FF" stopOpacity="0.6" />
-                <stop offset="100%" stopColor="#6EE7F9" stopOpacity="0.8" />
+                <stop offset="0%" stopColor="#61A5FA" stopOpacity="0.5" />
+                <stop offset="50%" stopColor="#3B82F6" stopOpacity="0.7" />
+                <stop offset="100%" stopColor="#1D4ED8" stopOpacity="0.9" />
               </linearGradient>
             </defs>
           </BarChart>

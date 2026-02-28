@@ -103,16 +103,16 @@ export function HeroStrip({ summary, sessions }: HeroStripProps) {
   const stats = computeStats(sessions, summary);
 
   return (
-    <section className="mb-4">
-      <div className="grid grid-cols-3 gap-2 lg:gap-3">
+    <section className="h-full flex items-center">
+      <div className="grid grid-cols-3 gap-6 w-full h-full">
         {/* Sessions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="bento-cell bento-cell-indigo p-4 lg:p-5"
+          className="bento-cell bento-cell-indigo p-5"
         >
-          <div className="mb-2 font-monoData text-5xl font-light text-textPrimary">
+          <div className="mb-2 font-monoData text-5xl font-light text-accentPrimary">
             <CountUp end={stats.totalSessions} />
           </div>
           <div className="mb-2 text-sm font-medium uppercase tracking-wider text-textMuted">
@@ -130,9 +130,9 @@ export function HeroStrip({ summary, sessions }: HeroStripProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="bento-cell bento-cell-teal p-4 lg:p-5"
+          className="bento-cell bento-cell-teal p-5"
         >
-          <div className="mb-2 font-monoData text-5xl font-light text-textPrimary">
+          <div className="mb-2 font-monoData text-5xl font-light text-accentTeal">
             <CountUp end={Math.round(stats.totalHours * 10) / 10} />
           </div>
           <div className="mb-2 text-sm font-medium uppercase tracking-wider text-textMuted">
@@ -150,9 +150,9 @@ export function HeroStrip({ summary, sessions }: HeroStripProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="bento-cell bento-cell-blue p-4 lg:p-5"
+          className="bento-cell bento-cell-blue p-5"
         >
-          <div className="mb-2 font-monoData text-5xl font-light text-textPrimary">
+          <div className="mb-2 font-monoData text-5xl font-light text-accentPrimary">
             <CountUp end={Math.round(stats.avgFlowRatio * 100)} />%
           </div>
           <div className="mb-2 text-sm font-medium uppercase tracking-wider text-textMuted">
