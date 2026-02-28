@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "ProSocratic",
+  "description": "Your quiet study companion — learns how you learn, then teaches you to learn better.",
+  "version": "1.0.0",
+  "permissions": [
+    "storage",
+    "tabs",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "src/background/index.ts",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/index.tsx"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/*", "mascot/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
