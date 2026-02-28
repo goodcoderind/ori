@@ -3,17 +3,18 @@ import { TopBar } from './TopBar';
 
 interface ShellProps {
   children: ReactNode;
+  showTopBar?: boolean;
 }
 
-export function Shell({ children }: ShellProps) {
+export function Shell({ children, showTopBar = true }: ShellProps) {
   return (
-    <div className="relative min-h-screen">
-      <TopBar />
+    <div className="relative h-screen flex flex-col overflow-hidden">
+      {showTopBar && <TopBar />}
       <main
         id="app-main-scroll"
-        className="relative z-10 min-h-screen overflow-y-auto"
+        className="relative z-10 flex-1 overflow-hidden"
       >
-        <div className="mx-auto max-w-[1600px] px-6 py-8 lg:px-16 lg:py-12">
+        <div className="mx-auto max-w-[1800px] h-full px-2 py-2 lg:px-4 lg:py-4">
           {children}
         </div>
       </main>

@@ -10,12 +10,12 @@ export function AssessmentLog({ session }: AssessmentLogProps) {
   if (!session.assessments.length) return null;
 
   return (
-    <Card hoverable className="space-y-4">
-      <div>
-        <div className="text-xs font-medium uppercase tracking-[0.16em] text-textMuted">
+    <div className="bento-cell bento-cell-teal p-6">
+      <div className="mb-4">
+        <div className="text-sm font-medium uppercase tracking-[0.16em] text-textMuted">
           Assessment Log
         </div>
-        <div className="mt-1 font-serifDisplay text-lg italic text-textPrimary">
+        <div className="mt-0.5 font-serifDisplay text-lg italic text-textPrimary">
           How well you understood
         </div>
       </div>
@@ -71,6 +71,6 @@ export function AssessmentLog({ session }: AssessmentLogProps) {
           </div>
         ))}
       </div>
-    </Card>
+    </div>
   );
 }

@@ -19,18 +19,18 @@ export function StateTimeline({ session }: StateTimelineProps) {
   const span = Math.max(end - start, 1);
 
   return (
-    <Card hoverable className="space-y-4">
-      <div>
-        <div className="text-xs font-medium uppercase tracking-[0.16em] text-textMuted">
+    <div className="bento-cell bento-cell-indigo p-6">
+      <div className="mb-4">
+        <div className="text-sm font-medium uppercase tracking-[0.16em] text-textMuted">
           Event Timeline
         </div>
-        <div className="mt-1 font-serifDisplay text-lg italic text-textPrimary">
+        <div className="mt-0.5 font-serifDisplay text-lg italic text-textPrimary">
           How your attention moved through the session
         </div>
       </div>
 
       <div className="overflow-x-auto pb-2">
-        <div className="relative h-32 min-w-[600px]">
+        <div className="relative h-40 min-w-[400px] px-4">
           {/* Connecting line */}
           <div className="absolute inset-y-0 left-0 right-0 top-1/2 -translate-y-1/2 border-t border-white/10" />
           
@@ -100,6 +100,6 @@ export function StateTimeline({ session }: StateTimelineProps) {
           })}
         </div>
       </div>
-    </Card>
+    </div>
   );
 }

@@ -15,13 +15,13 @@ export function SuggestionLog({ session }: SuggestionLogProps) {
   if (!suggestions.length) return null;
 
   return (
-    <Card hoverable className="space-y-4">
-      <div>
-        <div className="text-xs font-medium uppercase tracking-[0.16em] text-textMuted">
+    <div className="bento-cell bento-cell-purple p-6">
+      <div className="mb-4">
+        <div className="text-sm font-medium uppercase tracking-[0.16em] text-textMuted">
           Suggestions
         </div>
-        <div className="mt-1 font-serifDisplay text-lg italic text-textPrimary">
-          What DeepIt nudged you to try
+        <div className="mt-0.5 font-serifDisplay text-lg italic text-textPrimary">
+          What ORI nudged you to try
         </div>
       </div>
 
@@ -66,6 +66,6 @@ export function SuggestionLog({ session }: SuggestionLogProps) {
           </tbody>
         </table>
       </div>
-    </Card>
+    </div>
   );
 }

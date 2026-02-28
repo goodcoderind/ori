@@ -4,32 +4,38 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Professional dark theme with indigo/teal accents
-        background: '#0F0F23',
-        surface: '#1A1A2E',
-        surfaceRaised: '#16213E',
-        borderSubtle: 'rgba(99, 102, 241, 0.1)',
+        // Sophisticated dark theme - Apple Pro / Notion style
+        background: '#0F0F14',
+        surface: '#151520',
+        surfaceRaised: '#1C1C28',
+        borderSubtle: 'rgba(156, 124, 255, 0.1)',
         
         // Text colors
         textPrimary: '#F8FAFC',
-        textMuted: 'rgba(248, 250, 252, 0.7)',
-        textFaint: 'rgba(248, 250, 252, 0.4)',
+        textMuted: 'rgba(248, 250, 252, 0.65)',
+        textFaint: 'rgba(248, 250, 252, 0.35)',
         
-        // Professional accent colors
-        accentIndigo: '#6366F1',
-        accentTeal: '#14B8A6',
-        accentAmber: '#F59E0B',
-        accentPurple: '#8B5CF6',
-        accentBlue: '#3B82F6',
-        accentMint: '#10B981',
+        // Premium accent colors
+        accentPrimary: '#9C7CFF',
+        accentSecondary: '#BFA8FF',
+        accentHighlight: '#6EE7F9',
+        
+        // Legacy aliases for compatibility
+        accentIndigo: '#9C7CFF',
+        accentTeal: '#6EE7F9',
+        accentAmber: '#BFA8FF',
+        accentPurple: '#9C7CFF',
+        accentViolet: '#9C7CFF',
+        accentBlue: '#6EE7F9',
+        accentMint: '#6EE7F9',
         accentRed: '#EF4444',
         
         // Bento grid cell colors
-        bento1: 'rgba(99, 102, 241, 0.1)',
-        bento2: 'rgba(20, 184, 166, 0.1)',
-        bento3: 'rgba(139, 92, 246, 0.1)',
-        bento4: 'rgba(59, 130, 246, 0.1)',
-        bento5: 'rgba(16, 185, 129, 0.1)',
+        bento1: 'rgba(156, 124, 255, 0.1)',
+        bento2: 'rgba(191, 168, 255, 0.1)',
+        bento3: 'rgba(110, 231, 249, 0.1)',
+        bento4: 'rgba(156, 124, 255, 0.08)',
+        bento5: 'rgba(191, 168, 255, 0.08)',
       },
       fontFamily: {
         serifDisplay: ['"Instrument Serif"', 'serif'],

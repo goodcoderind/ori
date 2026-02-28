@@ -279,9 +279,9 @@ export function FocusRhythmChart({ summary, sessions }: FocusRhythmChartProps) {
               />
               <Tooltip
                 contentStyle={{
-                  background: 'rgba(26, 26, 26, 0.95)',
+                  background: 'rgba(28, 28, 40, 0.95)',
                   backdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  border: '1px solid rgba(156, 124, 255, 0.2)',
                   borderRadius: 12,
                   fontSize: 12,
                   boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',

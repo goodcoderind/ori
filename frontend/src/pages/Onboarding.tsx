@@ -61,9 +61,21 @@ export function Onboarding() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-6 py-12">
-      <div className="mx-auto w-full max-w-2xl">
-        <AnimatePresence mode="wait">
+    <div className="relative min-h-screen bg-background">
+      {/* ORI Branding - Fixed at top, always visible, never disappears */}
+      <div className="absolute top-12 left-0 right-0 z-10 text-center">
+        <h1 className="mb-2 font-serifDisplay text-4xl italic tracking-tight text-accentViolet md:text-5xl lg:text-6xl">
+          ORI
+        </h1>
+        <p className="font-serifDisplay text-lg italic text-textMuted md:text-xl lg:text-2xl">
+          It&apos;s not what you learn. It&apos;s how you learn.
+        </p>
+      </div>
+
+      {/* Content area - centered */}
+      <div className="flex min-h-screen items-center justify-center px-6 py-12">
+        <div className="mx-auto w-full max-w-2xl pt-24">
+          <AnimatePresence mode="wait">
           {step === 'topic' && (
             <motion.div
               key="topic"
@@ -199,7 +211,8 @@ export function Onboarding() {
               </p>
             </motion.div>
           )}
-        </AnimatePresence>
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );

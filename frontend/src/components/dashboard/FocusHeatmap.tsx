@@ -13,9 +13,10 @@ import { formatPeriod } from '../../utils/formatters';
 
 interface FocusHeatmapProps {
   summary: DashboardSummary;
+  compact?: boolean;
 }
 
-export function FocusHeatmap({ summary }: FocusHeatmapProps) {
+export function FocusHeatmap({ summary, compact = false }: FocusHeatmapProps) {
   const raw = summary.focus_heatmap;
   const data = [
     { label: 'morning', value: raw.morning },
@@ -25,18 +26,16 @@ export function FocusHeatmap({ summary }: FocusHeatmapProps) {
   ];
 
   return (
-    <section className="space-y-4">
-      <div className="flex items-end justify-between">
-        <div>
-          <div className="text-sm font-medium uppercase tracking-[0.16em] text-textMuted">
-            Time of day
-          </div>
-          <div className="mt-1 font-serifDisplay text-xl italic text-textPrimary">
-            When your focus tends to hold
-          </div>
+    <div className="w-full h-full flex flex-col">
+      <div className="flex-shrink-0 mb-3">
+        <div className="text-sm font-medium uppercase tracking-[0.16em] text-textMuted">
+          Time of day
+        </div>
+        <div className={`mt-0.5 font-serifDisplay ${compact ? 'text-lg' : 'text-xl'} italic text-textPrimary`}>
+          When your focus tends to hold
         </div>
       </div>
-      <div className="h-56">
+      <div className={`flex-1 min-h-0 ${compact ? 'h-32' : 'h-56'}`}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={data}
@@ -57,14 +56,15 @@ export function FocusHeatmap({ summary }: FocusHeatmapProps) {
               dataKey="label"
               type="category"
               tickFormatter={(label) => formatPeriod(label)}
-              tick={{ fill: '#B0B0B0', fontSize: 11 }}
+              tick={{ fill: '#B0B0B0', fontSize: compact ? 10 : 11 }}
               axisLine={false}
               tickLine={false}
+              width={compact ? 50 : 60}
             />
             <RechartsTooltip
               contentStyle={{
-                background: 'rgba(26, 26, 26, 0.95)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
+                background: 'rgba(28, 28, 40, 0.95)',
+                border: '1px solid rgba(156, 124, 255, 0.2)',
                 borderRadius: 12,
                 fontSize: 12,
                 color: '#FFFFFF',
@@ -82,15 +82,15 @@ export function FocusHeatmap({ summary }: FocusHeatmapProps) {
             />
             <defs>
               <linearGradient id="focusGradient" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#404040" />
-                <stop offset="50%" stopColor="#737373" />
-                <stop offset="100%" stopColor="#D4D4D4" />
+                <stop offset="0%" stopColor="#9C7CFF" stopOpacity="0.4" />
+                <stop offset="50%" stopColor="#BFA8FF" stopOpacity="0.6" />
+                <stop offset="100%" stopColor="#6EE7F9" stopOpacity="0.8" />
               </linearGradient>
             </defs>
           </BarChart>
         </ResponsiveContainer>
       </div>
-    </section>
+    </div>
   );
 }
 

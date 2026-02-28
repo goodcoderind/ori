@@ -7,15 +7,15 @@ export function Landing() {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-6">
-      <div className="mx-auto max-w-3xl text-center">
+    <div className="relative z-10 flex min-h-screen items-center justify-center bg-background px-6">
+      <div className="relative z-10 mx-auto max-w-3xl text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
         >
           <h1 className="mb-4 font-serifDisplay text-6xl italic tracking-tight text-accentViolet md:text-7xl lg:text-8xl">
-            DeepIt
+            ORI
           </h1>
         </motion.div>
 
@@ -54,14 +54,6 @@ export function Landing() {
           </button>
         </motion.div>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="mt-6 text-sm text-textFaint"
-        >
-          No email required
-        </motion.p>
       </div>
     </div>
   );
