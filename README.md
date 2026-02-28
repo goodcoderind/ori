@@ -2,8 +2,6 @@
 
 > **It's not about what you learn. It's about how you learn.**
 
-Five undergrads flew from the UAE to Hong Kong to build this. We felt this problem ourselves. We knew we had something real.
-
 ---
 
 ## The Problem
