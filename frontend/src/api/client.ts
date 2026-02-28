@@ -15,12 +15,16 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (res) => {
     const reqId = res.headers['x-request-id'];
-    if (reqId) console.debug('[DeepIt] X-Request-Id:', reqId);
+    if (reqId && import.meta.env.DEV) {
+      console.debug('[DeepIt] X-Request-Id:', reqId);
+    }
     return res;
   },
   (err) => {
     const reqId = err.response?.headers?.['x-request-id'];
-    if (reqId) console.error('[DeepIt] Failed request X-Request-Id:', reqId);
+    if (reqId) {
+      console.error('[DeepIt] Failed request X-Request-Id:', reqId);
+    }
     return Promise.reject(err);
   }
 );

@@ -1,12 +1,12 @@
 import type { LearnerState } from '../types/states';
 
+// Professional color palette matching the new theme
 export const stateColors: Record<LearnerState, string> = {
-  FLOW: '#52C99A',
-  INSIGHT: '#F0A55A',
-  CONFUSION: '#5BA3F5',
-  MIND_WANDER: '#8A89A4',
-  FRUSTRATION: '#E06060',
-  OVERLOAD: '#C06EE0',
-  BOREDOM: '#3E3D56',
+  FLOW: '#6366F1',        // Indigo - flow state
+  INSIGHT: '#14B8A6',     // Teal - insights
+  CONFUSION: '#8B5CF6',   // Purple - confusion
+  MIND_WANDER: '#3B82F6', // Blue - mind wander
+  FRUSTRATION: '#F59E0B', // Amber - frustration
+  OVERLOAD: '#EF4444',    // Red - overload
+  BOREDOM: '#64748B',     // Slate - boredom
 };
-

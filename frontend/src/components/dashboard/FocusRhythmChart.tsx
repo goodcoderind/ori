@@ -200,19 +200,19 @@ export function FocusRhythmChart({ summary, sessions }: FocusRhythmChartProps) {
   };
 
   return (
-    <section className="mb-12 space-y-4">
+    <div className="w-full h-full space-y-4">
       <div className="flex items-end justify-between">
         <div>
-          <div className="text-xs font-medium uppercase tracking-[0.16em] text-textMuted">
+          <div className="text-sm font-medium uppercase tracking-[0.16em] text-textMuted">
             Focus Rhythm
           </div>
-          <div className="mt-1 font-serifDisplay text-lg italic text-textPrimary">
+          <div className="mt-1 font-serifDisplay text-xl italic text-textPrimary">
             The centerpiece of your learning
           </div>
         </div>
       </div>
 
-      <div className="glass rounded-2xl p-6">
+      <div className="w-full">
         {/* Controls */}
         <div className="mb-6 flex flex-wrap items-center gap-3">
           <div className="flex gap-1 rounded-lg glass-strong p-1">
@@ -222,7 +222,7 @@ export function FocusRhythmChart({ summary, sessions }: FocusRhythmChartProps) {
                 onClick={() => setRange(r)}
                 className={`rounded-lg px-3 py-1 text-xs font-medium transition-all ${
                   range === r
-                    ? 'glass-strong bg-accentViolet/30 text-textPrimary shadow-lg'
+                    ? 'glass-strong bg-white/10 text-textPrimary shadow-lg'
                     : 'text-textMuted hover:text-textPrimary hover:glass'
                 }`}
               >
@@ -238,7 +238,7 @@ export function FocusRhythmChart({ summary, sessions }: FocusRhythmChartProps) {
                 onClick={() => setMode(m)}
                 className={`rounded-lg px-3 py-1 text-xs font-medium transition-all ${
                   mode === m
-                    ? 'glass-strong bg-accentViolet/30 text-textPrimary shadow-lg'
+                    ? 'glass-strong bg-white/10 text-textPrimary shadow-lg'
                     : 'text-textMuted hover:text-textPrimary hover:glass'
                 }`}
               >
@@ -258,33 +258,34 @@ export function FocusRhythmChart({ summary, sessions }: FocusRhythmChartProps) {
               <defs>
                 {states.map((state) => (
                   <linearGradient key={state} id={`gradient-${state}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={stateColors[state]} stopOpacity={0.7} />
-                    <stop offset="100%" stopColor={stateColors[state]} stopOpacity={0.2} />
+                    <stop offset="0%" stopColor={stateColors[state]} stopOpacity={0.6} />
+                    <stop offset="100%" stopColor={stateColors[state]} stopOpacity={0.15} />
                   </linearGradient>
                 ))}
               </defs>
-              <CartesianGrid stroke="#26263A" strokeDasharray="3 3" />
+              <CartesianGrid stroke="rgba(255, 255, 255, 0.05)" strokeDasharray="3 3" />
               <XAxis
                 dataKey="date"
                 tickFormatter={formatDate}
-                tick={{ fill: '#8A89A4', fontSize: 11 }}
+                tick={{ fill: '#B0B0B0', fontSize: 11 }}
                 axisLine={false}
                 tickLine={false}
                 interval={range === '7' ? 0 : range === '30' ? 4 : 12}
               />
               <YAxis
-                tick={{ fill: '#8A89A4', fontSize: 11 }}
+                tick={{ fill: '#B0B0B0', fontSize: 11 }}
                 axisLine={false}
                 tickLine={false}
               />
               <Tooltip
                 contentStyle={{
-                  background: 'rgba(17, 17, 25, 0.8)',
+                  background: 'rgba(26, 26, 26, 0.95)',
                   backdropFilter: 'blur(20px)',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   borderRadius: 12,
                   fontSize: 12,
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                  color: '#FFFFFF',
                 }}
                 formatter={(value: number, name: string) => [
                   `${Math.round(value)} min`,
@@ -316,6 +317,6 @@ export function FocusRhythmChart({ summary, sessions }: FocusRhythmChartProps) {
           {summaryText}
         </motion.p>
       </div>
-    </section>
+    </div>
   );
 }

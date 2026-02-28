@@ -1,6 +1,6 @@
 import type { DashboardSummary } from '../../types/api';
 import { Card } from '../ui/Card';
-import { formatDueTime } from '../../utils/formatters';
+import { formatDueTime, formatPercent } from '../../utils/formatters';
 
 interface UpcomingReviewsProps {
   summary: DashboardSummary;
@@ -18,16 +18,16 @@ export function UpcomingReviews({ summary }: UpcomingReviewsProps) {
     <section id="reviews" className="space-y-3">
       <div className="flex items-end justify-between">
         <div>
-          <div className="text-xs font-medium uppercase tracking-[0.16em] text-textMuted">
+          <div className="text-sm font-medium uppercase tracking-[0.16em] text-textMuted">
             Upcoming reviews
           </div>
-          <div className="mt-1 font-serifDisplay text-lg italic text-textPrimary">
+          <div className="mt-1 font-serifDisplay text-xl italic text-textPrimary">
             Keeping ideas from fading
           </div>
         </div>
       </div>
 
-      <Card>
+      <div className="w-full">
         {sorted.length === 0 ? (
           <div className="py-8 text-center">
             <div className="mb-2 text-2xl">✓</div>
@@ -39,11 +39,11 @@ export function UpcomingReviews({ summary }: UpcomingReviewsProps) {
             {sorted.map((review) => {
               let urgencyColor = 'text-textFaint';
               if (review.overdue) {
-                urgencyColor = 'text-accentAmber';
+                urgencyColor = 'text-textMuted';
               } else {
                 const hoursUntil = (new Date(review.next_probe_at).getTime() - Date.now()) / (1000 * 60 * 60);
-                if (hoursUntil < 24) urgencyColor = 'text-accentAmber';
-                else if (hoursUntil < 48) urgencyColor = 'text-accentBlue';
+                if (hoursUntil < 24) urgencyColor = 'text-textMuted';
+                else if (hoursUntil < 48) urgencyColor = 'text-textFaint';
               }
 
               return (
@@ -53,11 +53,11 @@ export function UpcomingReviews({ summary }: UpcomingReviewsProps) {
                 >
                   <div className="flex items-center gap-3 flex-1">
                     {review.overdue && (
-                      <div className="h-2 w-2 rounded-full bg-accentAmber" />
+                      <div className="h-2 w-2 rounded-full bg-white/40" />
                     )}
-                    <div className="flex-1">
+                  <div className="flex-1">
                       <div className="mb-1 font-medium text-textPrimary">{review.topic_label}</div>
-                      <div className={`text-[10px] font-medium ${urgencyColor}`}>
+                    <div className={`text-[10px] font-medium ${urgencyColor}`}>
                         {review.overdue ? 'OVERDUE' : formatDueTime(review.next_probe_at, review.overdue)}
                       </div>
                     </div>
@@ -70,7 +70,7 @@ export function UpcomingReviews({ summary }: UpcomingReviewsProps) {
             })}
           </div>
         )}
-      </Card>
+      </div>
     </section>
   );
 }

@@ -126,19 +126,19 @@ export function SessionDetail() {
         <div className="flex items-center gap-4">
           <div className="text-sm text-textMuted">
             Suggestions shown: <span className="font-monoData text-textPrimary">{session.rolled_up_summary.suggestions_shown}</span>
-          </div>
-          <div className="flex items-center gap-2">
+        </div>
+        <div className="flex items-center gap-2">
             {Object.entries(session.rolled_up_summary.by_state).map(([state, count]) => (
               <div key={state} className="flex items-center gap-1.5">
                 <div
-                  className="h-2 w-2 rounded-full"
+                className="h-2 w-2 rounded-full"
                   style={{ backgroundColor: stateColors[state as LearnerState] }}
-                />
+              />
                 <span className="text-xs text-textMuted">
                   {state.replace('_', ' ')}: {count}
-                </span>
+              </span>
               </div>
-            ))}
+          ))}
           </div>
         </div>
       </div>
@@ -155,23 +155,23 @@ export function SessionDetail() {
       {/* Navigation */}
       <div className="flex items-center justify-between border-t border-white/10 pt-6">
         {prev ? (
-          <Link
-            to={`/dashboard/session/${prev.session_id}`}
+            <Link
+              to={`/dashboard/session/${prev.session_id}`}
             className="text-sm text-accentViolet hover:underline"
-          >
-            ← Previous session
-          </Link>
+            >
+              ← Previous session
+            </Link>
         ) : (
           <div />
-        )}
-        {next && (
-          <Link
-            to={`/dashboard/session/${next.session_id}`}
+          )}
+          {next && (
+            <Link
+              to={`/dashboard/session/${next.session_id}`}
             className="text-sm text-accentViolet hover:underline"
-          >
-            Next session →
-          </Link>
-        )}
+            >
+              Next session →
+            </Link>
+          )}
       </div>
     </motion.div>
   );

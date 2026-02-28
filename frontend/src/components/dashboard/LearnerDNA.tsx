@@ -43,10 +43,10 @@ export function LearnerDNA({ summary, sessions }: LearnerDNAProps) {
     <section className="mb-12">
       <div className="flex items-end justify-between mb-4">
         <div>
-          <div className="text-xs font-medium uppercase tracking-[0.16em] text-textMuted">
+          <div className="text-sm font-medium uppercase tracking-[0.16em] text-textMuted">
             Learner DNA
           </div>
-          <div className="mt-1 font-serifDisplay text-lg italic text-textPrimary">
+          <div className="mt-1 font-serifDisplay text-xl italic text-textPrimary">
             Who you are as a learner
           </div>
         </div>
@@ -56,10 +56,7 @@ export function LearnerDNA({ summary, sessions }: LearnerDNAProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="relative overflow-hidden glass rounded-2xl border-l-4 border-accentAmber p-8"
-        style={{
-          backgroundImage: `radial-gradient(circle at 20% 50%, rgba(240, 165, 90, 0.03) 0%, transparent 50%)`,
-        }}
+        className="relative overflow-hidden glass rounded-2xl border-l-4 border-white/20 p-10"
       >
         <div className="mb-6">
           <div className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-textMuted">
@@ -69,7 +66,7 @@ export function LearnerDNA({ summary, sessions }: LearnerDNAProps) {
         </div>
 
         <div className="mb-8">
-          <div className="mb-3 font-serifDisplay text-4xl italic text-accentAmber">
+          <div className="mb-3 font-serifDisplay text-4xl italic text-textPrimary">
             You are a {archetype.name}
           </div>
           <div className="max-w-2xl text-sm leading-relaxed text-textMuted">
@@ -78,24 +75,24 @@ export function LearnerDNA({ summary, sessions }: LearnerDNAProps) {
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div className="rounded-lg glass border border-accentAmber/30 bg-accentAmber/10 p-4">
-            <div className="mb-2 flex items-center gap-2 text-xs font-medium text-accentAmber">
+          <div className="rounded-lg glass border border-white/12 bg-white/5 p-4">
+            <div className="mb-2 flex items-center gap-2 text-xs font-medium text-textMuted uppercase tracking-wider">
               <span>⚡</span>
               <span>SUPERPOWER</span>
             </div>
             <div className="text-sm font-medium text-textPrimary">{superpower}</div>
           </div>
 
-          <div className="rounded-lg glass border border-accentViolet/30 bg-accentViolet/10 p-4">
-            <div className="mb-2 flex items-center gap-2 text-xs font-medium text-accentViolet">
+          <div className="rounded-lg glass border border-white/10 bg-white/3 p-4">
+            <div className="mb-2 flex items-center gap-2 text-xs font-medium text-textMuted uppercase tracking-wider">
               <span>🕳</span>
               <span>BLIND SPOT</span>
             </div>
             <div className="text-sm font-medium text-textPrimary">{blindSpot}</div>
           </div>
 
-          <div className="rounded-lg glass border border-accentMint/30 bg-accentMint/10 p-4">
-            <div className="mb-2 flex items-center gap-2 text-xs font-medium text-accentMint">
+          <div className="rounded-lg glass border border-white/12 bg-white/5 p-4">
+            <div className="mb-2 flex items-center gap-2 text-xs font-medium text-textMuted uppercase tracking-wider">
               <span>🕐</span>
               <span>PEAK TIME</span>
             </div>

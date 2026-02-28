@@ -32,16 +32,16 @@ export function TechniqueTable({ summary }: TechniqueTableProps) {
     <section className="space-y-4">
       <div className="flex items-end justify-between">
         <div>
-          <div className="text-xs font-medium uppercase tracking-[0.16em] text-textMuted">
+          <div className="text-sm font-medium uppercase tracking-[0.16em] text-textMuted">
             Techniques
           </div>
-          <div className="mt-1 font-serifDisplay text-lg italic text-textPrimary">
+          <div className="mt-1 font-serifDisplay text-xl italic text-textPrimary">
             What actually works for you
           </div>
         </div>
       </div>
 
-      <div className="glass rounded-2xl p-6">
+      <div className="w-full">
         <motion.div
           variants={container}
           initial="hidden"
@@ -72,7 +72,7 @@ export function TechniqueTable({ summary }: TechniqueTableProps) {
                     </div>
                   </div>
                 </div>
-                <ProgressBar value={entry.success_rate} color="#7C6EF5" />
+                <ProgressBar value={entry.success_rate} color="#E0E0E0" />
                 <div className="mt-2 flex items-center justify-between text-xs text-textMuted">
                   <span>shown {entry.shown_count}×</span>
                   <span>accepted {formatPercent(entry.acceptance_rate)}</span>

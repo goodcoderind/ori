@@ -9,7 +9,7 @@ interface ProgressBarProps {
 
 export function ProgressBar({
   value,
-  color = '#7C6EF5',
+  color = '#E0E0E0',
   animated = true,
   height = 6,
 }: ProgressBarProps) {
@@ -23,7 +23,7 @@ export function ProgressBar({
       <motion.div
         className="h-full rounded-full"
         style={{
-          background: `linear-gradient(90deg, ${color}, #52C99A)`,
+          background: `linear-gradient(90deg, ${color}, #B0B0B0)`,
         }}
         initial={animated ? { width: 0 } : { width: `${clamped * 100}%` }}
         animate={{ width: `${clamped * 100}%` }}

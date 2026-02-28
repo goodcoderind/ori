@@ -7,7 +7,6 @@ import {
 } from 'recharts';
 import type { DashboardSummary } from '../../types/api';
 import { stateColors } from '../../utils/stateColors';
-import { Card } from '../ui/Card';
 
 interface FocusDonutProps {
   summary: DashboardSummary;
@@ -25,26 +24,26 @@ export function FocusDonut({ summary }: FocusDonutProps) {
     <section className="space-y-4">
       <div className="flex items-end justify-between">
         <div>
-          <div className="text-xs font-medium uppercase tracking-[0.16em] text-textMuted">
+          <div className="text-sm font-medium uppercase tracking-[0.16em] text-textMuted">
             Focus states
           </div>
-          <div className="mt-1 font-serifDisplay text-lg italic text-textPrimary">
+          <div className="mt-1 font-serifDisplay text-xl italic text-textPrimary">
             Where your mind lives while you learn
           </div>
         </div>
       </div>
-      <Card className="flex flex-col gap-4" hoverable>
-
       <div className="mt-2 flex flex-col gap-4 md:flex-row">
         <div className="h-56 flex-1">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <RechartsTooltip
                 contentStyle={{
-                  background: '#111119',
-                  border: '1px solid #26263A',
-                  borderRadius: 8,
+                  background: 'rgba(26, 26, 26, 0.95)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: 12,
                   fontSize: 12,
+                  color: '#FFFFFF',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
                 }}
                 formatter={(value: number, _name, { payload }) => [
                   `${Math.round(value * 100)}%`,
@@ -97,7 +96,6 @@ export function FocusDonut({ summary }: FocusDonutProps) {
           ))}
         </div>
       </div>
-      </Card>
     </section>
   );
 }

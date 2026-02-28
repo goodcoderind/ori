@@ -9,19 +9,20 @@ interface TopicGridProps {
 }
 
 function slugifyTopic(name: string): string {
-  return name.toLowerCase().replace(/\s+/g, '-');
+  return encodeURIComponent(name);
 }
 
 export function TopicGrid({ summary, sessions }: TopicGridProps) {
   const topics = Object.entries(summary.mastery_by_topic);
 
   const topicPatterns: Record<string, string[]> = {};
-  topics.forEach(([topic]) => {
+  topics.forEach(([topic, masteryEntry]) => {
     const topicSessions = sessions.filter((s) => s.topic_label === topic);
     const avgDuration =
-      topicSessions.reduce((acc, s) => acc + s.duration_minutes, 0) /
-      (topicSessions.length || 1);
-    const hasFlow = topicSessions.some((s) => s.dominant_state === 'FLOW');
+      topicSessions.reduce((acc, s) => acc + s.duration_seconds, 0) /
+      (topicSessions.length || 1) / 60;
+    // Estimate flow by confidence (sessions don't have dominant_state)
+    const hasFlow = topicSessions.some((s) => s.avg_confidence !== null && s.avg_confidence > 0.7);
 
     const patterns: string[] = [];
     if (avgDuration > 45) patterns.push('Gets stuck after ~40min');
@@ -46,7 +47,9 @@ export function TopicGrid({ summary, sessions }: TopicGridProps) {
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        {topics.map(([topic, mastery]) => (
+        {topics.map(([topic, masteryEntry]) => {
+          const mastery = masteryEntry.p_mastery;
+          return (
           <Link
             key={topic}
             to={`/dashboard/topic/${slugifyTopic(topic)}`}
@@ -67,7 +70,7 @@ export function TopicGrid({ summary, sessions }: TopicGridProps) {
                 {topicPatterns[topic].map((pattern) => (
                   <span
                     key={pattern}
-                    className="rounded-full bg-surfaceRaised px-2 py-1 text-[11px] text-textMuted"
+                      className="rounded-full glass px-2 py-1 text-[11px] text-textMuted"
                   >
                     {pattern}
                   </span>
@@ -75,9 +78,9 @@ export function TopicGrid({ summary, sessions }: TopicGridProps) {
               </div>
             </Card>
           </Link>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
 }
-

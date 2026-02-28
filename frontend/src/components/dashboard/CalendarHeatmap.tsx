@@ -90,15 +90,15 @@ export function CalendarHeatmap({ sessions }: CalendarHeatmapProps) {
   return (
     <div className="space-y-3">
       <div>
-        <div className="text-xs font-medium uppercase tracking-[0.16em] text-textMuted">
+        <div className="text-sm font-medium uppercase tracking-[0.16em] text-textMuted">
           Activity Calendar
         </div>
-        <div className="mt-1 font-serifDisplay text-lg italic text-textPrimary">
+        <div className="mt-1 font-serifDisplay text-xl italic text-textPrimary">
           Your learning rhythm
         </div>
       </div>
 
-      <div className="glass rounded-2xl p-6">
+      <div className="w-full">
         <div className="flex gap-2">
           {/* Day labels */}
           <div className="flex flex-col gap-1 pt-5">
@@ -147,7 +147,7 @@ export function CalendarHeatmap({ sessions }: CalendarHeatmapProps) {
                           height: cellSize,
                           backgroundColor: day.state ? color : 'transparent',
                           opacity,
-                          borderColor: day.state ? color : '#26263A',
+                          borderColor: day.state ? color : 'rgba(255, 255, 255, 0.1)',
                         }}
                         title={`${day.date.toLocaleDateString()}: ${day.minutes > 0 ? `${day.minutes} min, ${day.state}` : 'No session'}`}
                       />

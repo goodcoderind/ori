@@ -105,50 +105,50 @@ export function Sidebar() {
 
   return (
     <>
-      <aside className="relative z-20 flex h-screen w-64 flex-col border-r border-white/10 glass-strong px-5 py-6 lg:w-64 md:w-20 md:px-3 md:py-5">
-        <div className="mb-8 flex items-center justify-between md:justify-center">
-          <div className="font-serifDisplay text-xl italic tracking-wide text-accentViolet">
-            DeepIt
-          </div>
+    <aside className="relative z-20 flex h-screen w-64 flex-col border-r border-white/10 glass-strong px-5 py-6 lg:w-64 md:w-20 md:px-3 md:py-5">
+      <div className="mb-8 flex items-center justify-between md:justify-center">
+        <div className="font-serifDisplay text-xl italic tracking-wide text-accentViolet">
+          DeepIt
         </div>
+      </div>
 
-        <nav className="flex-1 space-y-1 text-sm">
-          {navItems.map((item) => {
-            const active = isActive(item);
-            return (
-              <button
-                key={item.label}
-                type="button"
-                onClick={() => handleClick(item)}
-                className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left transition-all duration-300 ${
-                  active
-                    ? 'glass-strong text-textPrimary shadow-lg'
-                    : 'text-textMuted hover:glass hover:text-textPrimary'
-                }`}
-              >
-                <span className="md:hidden lg:inline">{item.label}</span>
-                <span className="hidden text-xs font-medium md:inline lg:hidden">
-                  {item.label[0]}
-                </span>
-              </button>
-            );
-          })}
-        </nav>
+      <nav className="flex-1 space-y-1 text-sm">
+        {navItems.map((item) => {
+          const active = isActive(item);
+          return (
+            <button
+              key={item.label}
+              type="button"
+              onClick={() => handleClick(item)}
+              className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left transition-all duration-300 ${
+                active
+                  ? 'glass-strong text-textPrimary shadow-lg'
+                  : 'text-textMuted hover:glass hover:text-textPrimary'
+              }`}
+            >
+              <span className="md:hidden lg:inline">{item.label}</span>
+              <span className="hidden text-xs font-medium md:inline lg:hidden">
+                {item.label[0]}
+              </span>
+            </button>
+          );
+        })}
+      </nav>
 
         <div className="mt-6 border-t border-white/10 pt-4">
-          <div className="mb-3 flex items-center justify-between md:flex-col md:items-start md:gap-1">
-            <span className="text-xs text-textFaint">User</span>
-            <span className="rounded-full glass px-3 py-1 text-[11px] font-monoData text-textMuted">
-              {shortId}
-            </span>
-          </div>
-          <button
-            type="button"
+        <div className="mb-3 flex items-center justify-between md:flex-col md:items-start md:gap-1">
+          <span className="text-xs text-textFaint">User</span>
+          <span className="rounded-full glass px-3 py-1 text-[11px] font-monoData text-textMuted">
+            {shortId}
+          </span>
+        </div>
+        <button
+          type="button"
             onClick={handleExport}
             className="mb-2 flex w-full items-center justify-center rounded-full glass border border-white/10 py-2 text-xs font-medium text-textMuted transition-all hover:border-accentViolet/50 hover:text-textPrimary hover:shadow-lg"
-          >
-            Export data
-          </button>
+        >
+          Export data
+        </button>
           <button
             type="button"
             onClick={handleDelete}
@@ -156,8 +156,8 @@ export function Sidebar() {
           >
             {showDeleteConfirm ? 'Confirm delete' : 'Delete data'}
           </button>
-        </div>
-      </aside>
+      </div>
+    </aside>
 
       {/* Delete confirmation modal */}
       {showDeleteConfirm && (

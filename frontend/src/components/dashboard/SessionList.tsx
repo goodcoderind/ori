@@ -22,16 +22,16 @@ export function SessionList({ sessions }: SessionListProps) {
     <section id="sessions" className="space-y-3">
       <div className="flex items-end justify-between">
         <div>
-          <div className="text-xs font-medium uppercase tracking-[0.16em] text-textMuted">
+          <div className="text-sm font-medium uppercase tracking-[0.16em] text-textMuted">
             Session Feed
           </div>
-          <div className="mt-1 font-serifDisplay text-lg italic text-textPrimary">
+          <div className="mt-1 font-serifDisplay text-xl italic text-textPrimary">
             Your recent learning
           </div>
         </div>
       </div>
 
-      <Card>
+      <div className="w-full">
         <div className="max-h-96 space-y-1 overflow-y-auto">
           {sessions.slice(0, 10).map((session) => {
             const topicColor = getTopicColor(session.topic_label);
@@ -58,7 +58,7 @@ export function SessionList({ sessions }: SessionListProps) {
                       }}
                     >
                       {session.topic_label}
-                    </div>
+                  </div>
                   </div>
                   
                   {/* Duration */}
@@ -71,7 +71,7 @@ export function SessionList({ sessions }: SessionListProps) {
                     <div className="w-16 shrink-0 text-right">
                       <div className="font-monoData text-[11px] text-textPrimary">
                         {formatPercent(session.avg_confidence)}
-                      </div>
+                    </div>
                       <div className="text-[9px] text-textFaint">confidence</div>
                     </div>
                   )}
@@ -98,7 +98,7 @@ export function SessionList({ sessions }: SessionListProps) {
             <div className="mt-1 text-xs text-textMuted">Start learning to see your sessions here.</div>
           </div>
         )}
-      </Card>
+      </div>
     </section>
   );
 }

@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import { CountUp } from '../ui/CountUp';
 import type { DashboardSummary, SessionListItem } from '../../types/api';
-import { formatRelativeTime } from '../../utils/formatters';
 
 interface HeroStripProps {
   summary: DashboardSummary;
@@ -71,8 +70,8 @@ function computeStats(sessions: SessionListItem[], summary: DashboardSummary) {
     }
   }
 
-  // Flow ratio
-  const flowSessions = sessions.filter((s) => s.dominant_state === 'FLOW').length;
+  // Flow ratio - estimate by confidence (sessions don't have dominant_state)
+  const flowSessions = sessions.filter((s) => s.avg_confidence !== null && s.avg_confidence > 0.7).length;
   const avgFlowRatio = sessions.length > 0 ? flowSessions / sessions.length : 0;
   
   // Calculate flow delta (simplified - compare last week to week before)
@@ -81,7 +80,7 @@ function computeStats(sessions: SessionListItem[], summary: DashboardSummary) {
       const time = new Date(s.started_at).getTime();
       return time <= now - weekMs && time > now - weekMs * 2;
     })
-    .filter((s) => s.dominant_state === 'FLOW').length;
+    .filter((s) => s.avg_confidence !== null && s.avg_confidence > 0.7).length;
   const lastWeekTotal = sessions.filter((s) => {
     const time = new Date(s.started_at).getTime();
     return time <= now - weekMs && time > now - weekMs * 2;
@@ -102,105 +101,70 @@ function computeStats(sessions: SessionListItem[], summary: DashboardSummary) {
 
 export function HeroStrip({ summary, sessions }: HeroStripProps) {
   const stats = computeStats(sessions, summary);
-  const greeting = (() => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 18) return 'Good afternoon';
-    return 'Good evening';
-  })();
 
   return (
-    <section className="mb-12 grid grid-cols-1 gap-8 lg:grid-cols-2">
-      {/* Left: Greeting */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="flex flex-col justify-center"
-      >
-        <div className="text-sm font-medium text-textMuted">{greeting}.</div>
-        <div className="mt-2 font-serifDisplay text-5xl italic leading-tight text-textPrimary lg:text-6xl">
-          Here&apos;s how
-          <br />
-          you&apos;ve been learning.
-        </div>
-      </motion.div>
-
-      {/* Right: Stats Grid */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.1 }}
-        className="grid grid-cols-2 gap-4"
-      >
+    <section className="mb-4">
+      <div className="grid grid-cols-3 gap-2 lg:gap-3">
         {/* Sessions */}
-        <div className="glass rounded-2xl p-6">
-          <div className="mb-1 font-monoData text-3xl font-medium text-textPrimary">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="bento-cell bento-cell-indigo p-4 lg:p-5"
+        >
+          <div className="mb-2 font-monoData text-5xl font-light text-textPrimary">
             <CountUp end={stats.totalSessions} />
           </div>
-          <div className="mb-2 text-xs font-medium text-textMuted">sessions</div>
-          <div className="flex items-center gap-1.5">
-            {stats.sessionDelta >= 0 ? (
-              <>
-                <span className="rounded-full bg-accentMint/20 px-2 py-0.5 text-[10px] font-medium text-accentMint">
-                  +{stats.sessionDelta} this week
-                </span>
-              </>
-            ) : (
-              <span className="rounded-full bg-accentRed/20 px-2 py-0.5 text-[10px] font-medium text-accentRed">
-                {stats.sessionDelta} this week
-              </span>
-            )}
+          <div className="mb-2 text-sm font-medium uppercase tracking-wider text-textMuted">
+            Sessions
           </div>
+          {stats.sessionDelta !== 0 && (
+            <div className={`text-[10px] font-medium ${stats.sessionDelta >= 0 ? 'text-gray-400' : 'text-gray-600'}`}>
+              {stats.sessionDelta >= 0 ? '+' : ''}{stats.sessionDelta} this week
         </div>
+          )}
+        </motion.div>
 
         {/* Hours */}
-        <div className="glass rounded-2xl p-6">
-          <div className="mb-1 font-monoData text-3xl font-medium text-textPrimary">
-            <CountUp end={stats.totalHours} decimals={1} />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="bento-cell bento-cell-teal p-4 lg:p-5"
+        >
+          <div className="mb-2 font-monoData text-5xl font-light text-textPrimary">
+            <CountUp end={Math.round(stats.totalHours * 10) / 10} />
           </div>
-          <div className="mb-2 text-xs font-medium text-textMuted">hours learned</div>
-          <div className="flex items-center gap-1.5">
-            {stats.hoursDelta >= 0 ? (
-              <span className="rounded-full bg-accentMint/20 px-2 py-0.5 text-[10px] font-medium text-accentMint">
-                +{stats.hoursDelta.toFixed(1)} this week
-              </span>
-            ) : (
-              <span className="rounded-full bg-accentRed/20 px-2 py-0.5 text-[10px] font-medium text-accentRed">
-                {stats.hoursDelta.toFixed(1)} this week
-              </span>
-            )}
+          <div className="mb-2 text-sm font-medium uppercase tracking-wider text-textMuted">
+            Hours
           </div>
+          {stats.hoursDelta !== 0 && (
+            <div className={`text-[10px] font-medium ${stats.hoursDelta >= 0 ? 'text-gray-400' : 'text-gray-600'}`}>
+              {stats.hoursDelta >= 0 ? '+' : ''}{Math.round(stats.hoursDelta * 10) / 10}h this week
         </div>
-
-        {/* Streak */}
-        <div className="glass rounded-2xl p-6">
-          <div className="mb-1 font-monoData text-3xl font-medium text-textPrimary">
-            <CountUp end={stats.streak} />
-          </div>
-          <div className="mb-2 text-xs font-medium text-textMuted">day streak</div>
-          <div className="text-[10px] text-textFaint">personal best</div>
-        </div>
+          )}
+        </motion.div>
 
         {/* Flow Ratio */}
-        <div className="glass rounded-2xl p-6">
-          <div className="mb-1 font-monoData text-3xl font-medium text-textPrimary">
-            <CountUp end={stats.avgFlowRatio * 100} decimals={0} suffix="%" />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="bento-cell bento-cell-blue p-4 lg:p-5"
+        >
+          <div className="mb-2 font-monoData text-5xl font-light text-textPrimary">
+            <CountUp end={Math.round(stats.avgFlowRatio * 100)} />%
           </div>
-          <div className="mb-2 text-xs font-medium text-textMuted">avg flow ratio</div>
-          <div className="flex items-center gap-1.5">
-            {stats.flowDelta >= 0 ? (
-              <span className="rounded-full bg-accentMint/20 px-2 py-0.5 text-[10px] font-medium text-accentMint">
-                ▲ +{Math.round(stats.flowDelta * 100)}% vs last wk
-              </span>
-            ) : (
-              <span className="rounded-full bg-accentRed/20 px-2 py-0.5 text-[10px] font-medium text-accentRed">
-                ▼ {Math.round(stats.flowDelta * 100)}% vs last wk
-              </span>
-            )}
+          <div className="mb-2 text-sm font-medium uppercase tracking-wider text-textMuted">
+            Flow Ratio
           </div>
+          {stats.flowDelta !== 0 && (
+            <div className={`text-[10px] font-medium ${stats.flowDelta >= 0 ? 'text-gray-400' : 'text-gray-600'}`}>
+              {stats.flowDelta >= 0 ? '+' : ''}{Math.round(stats.flowDelta * 100)}% vs last week
         </div>
+          )}
       </motion.div>
+      </div>
     </section>
   );
 }

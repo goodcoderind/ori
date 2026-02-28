@@ -11,8 +11,8 @@ interface BadgeProps {
 }
 
 export function Badge({ variant = 'neutral', children, className }: BadgeProps) {
-  const color = variant === 'neutral' ? '#8A89A4' : stateColors[variant];
-  const bg = `${color}26`; // ~15% opacity
+  const color = variant === 'neutral' ? '#B0B0B0' : stateColors[variant];
+  const bg = `${color}20`; // ~12% opacity
 
   return (
     <span

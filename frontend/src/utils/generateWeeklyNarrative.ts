@@ -152,9 +152,9 @@ export function generateWeeklyNarrative(
     message: `You studied ${thisWeekSessions.length} out of ${thisWeekSessions.length} days between 7–10pm. Your morning sessions (${timeOfDayCounts.morning} this week) averaged 28% flow — your evening sessions averaged 51%. You're a night learner.`,
   };
 
-  // Insights - mock based on sessions
+  // Insights - estimate by high confidence sessions (sessions don't have dominant_state)
   const insights: WeeklyNarrative['insights'] = thisWeekSessions
-    .filter((s) => s.dominant_state === 'INSIGHT')
+    .filter((s) => s.avg_confidence !== null && s.avg_confidence > 0.85)
     .slice(0, 5)
     .map((s) => {
       const date = new Date(s.started_at);

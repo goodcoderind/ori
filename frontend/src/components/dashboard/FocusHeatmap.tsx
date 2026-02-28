@@ -28,16 +28,14 @@ export function FocusHeatmap({ summary }: FocusHeatmapProps) {
     <section className="space-y-4">
       <div className="flex items-end justify-between">
         <div>
-          <div className="text-xs font-medium uppercase tracking-[0.16em] text-textMuted">
+          <div className="text-sm font-medium uppercase tracking-[0.16em] text-textMuted">
             Time of day
           </div>
-          <div className="mt-1 font-serifDisplay text-lg italic text-textPrimary">
+          <div className="mt-1 font-serifDisplay text-xl italic text-textPrimary">
             When your focus tends to hold
           </div>
         </div>
       </div>
-      <Card className="flex flex-col gap-4" hoverable>
-
       <div className="h-56">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
@@ -47,7 +45,7 @@ export function FocusHeatmap({ summary }: FocusHeatmapProps) {
           >
             <CartesianGrid
               horizontal={false}
-              stroke="#26263A"
+              stroke="rgba(255, 255, 255, 0.05)"
               strokeDasharray="3 3"
             />
             <XAxis
@@ -59,16 +57,18 @@ export function FocusHeatmap({ summary }: FocusHeatmapProps) {
               dataKey="label"
               type="category"
               tickFormatter={(label) => formatPeriod(label)}
-              tick={{ fill: '#8A89A4', fontSize: 11 }}
+              tick={{ fill: '#B0B0B0', fontSize: 11 }}
               axisLine={false}
               tickLine={false}
             />
             <RechartsTooltip
               contentStyle={{
-                background: '#111119',
-                border: '1px solid #26263A',
-                borderRadius: 8,
+                background: 'rgba(26, 26, 26, 0.95)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: 12,
                 fontSize: 12,
+                color: '#FFFFFF',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
               }}
               formatter={(value: number, name, { payload }) => [
                 `${Math.round(value * 100)}% focus quality`,
@@ -82,15 +82,14 @@ export function FocusHeatmap({ summary }: FocusHeatmapProps) {
             />
             <defs>
               <linearGradient id="focusGradient" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#3E3D56" />
-                <stop offset="60%" stopColor="#7C6EF5" />
-                <stop offset="100%" stopColor="#52C99A" />
+                <stop offset="0%" stopColor="#404040" />
+                <stop offset="50%" stopColor="#737373" />
+                <stop offset="100%" stopColor="#D4D4D4" />
               </linearGradient>
             </defs>
           </BarChart>
         </ResponsiveContainer>
       </div>
-      </Card>
     </section>
   );
 }

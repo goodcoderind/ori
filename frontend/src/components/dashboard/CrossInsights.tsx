@@ -41,20 +41,20 @@ export function CrossInsights({ summary, sessions }: CrossInsightsProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <Card
           hoverable
-          accentColor="#F0A55A"
-          className="space-y-2"
+          accentColor="#E0E0E0"
+          className="space-y-3"
         >
-          <div className="text-xs font-medium uppercase tracking-[0.16em] text-accentAmber">
+          <div className="text-xs font-medium uppercase tracking-[0.16em] text-textMuted">
             Your superpower
           </div>
-          <div className="text-sm text-textPrimary">
+          <div className="text-sm leading-relaxed text-textPrimary">
             You lean on <span className="font-medium">{topTechniqueName}</span> to
             turn confusion into traction.
           </div>
-          <p className="text-xs text-textMuted">
+          <p className="text-xs leading-relaxed text-textMuted">
             When you remember to bring this technique in early, your sessions stay
             calmer and more directed.
           </p>
@@ -62,17 +62,17 @@ export function CrossInsights({ summary, sessions }: CrossInsightsProps) {
 
         <Card
           hoverable
-          accentColor="#7C6EF5"
-          className="space-y-2"
+          accentColor="#B0B0B0"
+          className="space-y-3"
         >
-          <div className="text-xs font-medium uppercase tracking-[0.16em] text-accentViolet">
+          <div className="text-xs font-medium uppercase tracking-[0.16em] text-textMuted">
             Your blind spot
           </div>
-          <div className="text-sm text-textPrimary">
+          <div className="text-sm leading-relaxed text-textPrimary">
             <span className="font-medium">{blindSpotTopic}</span> tends to slip
             just out of focus.
           </div>
-          <p className="text-xs text-textMuted">
+          <p className="text-xs leading-relaxed text-textMuted">
             These sessions often run longer than planned and drift into review
             instead of deliberate practice.
           </p>
@@ -80,20 +80,20 @@ export function CrossInsights({ summary, sessions }: CrossInsightsProps) {
 
         <Card
           hoverable
-          accentColor="#52C99A"
-          className="space-y-2"
+          accentColor="#D0D0D0"
+          className="space-y-3"
         >
-          <div className="text-xs font-medium uppercase tracking-[0.16em] text-accentMint">
+          <div className="text-xs font-medium uppercase tracking-[0.16em] text-textMuted">
             Peak focus
           </div>
-          <div className="text-sm text-textPrimary">
+          <div className="text-sm leading-relaxed text-textPrimary">
             {peakRange}{' '}
             <span className="text-textMuted">· sessions average</span>{' '}
             <span className="font-monoData">
               {Math.round(avgDuration)} min
             </span>
           </div>
-          <p className="text-xs text-textMuted">
+          <p className="text-xs leading-relaxed text-textMuted">
             This is when your mind is most willing to sit with difficulty. Protect
             this window for the work that matters.
           </p>

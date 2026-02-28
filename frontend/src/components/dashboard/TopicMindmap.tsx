@@ -83,10 +83,10 @@ export function TopicMindmap({ summary, sessions }: TopicMindmapProps) {
     <section id="topics" className="space-y-4">
       <div className="flex items-end justify-between">
         <div>
-          <div className="text-xs font-medium uppercase tracking-[0.16em] text-textMuted">
+          <div className="text-sm font-medium uppercase tracking-[0.16em] text-textMuted">
             Topics
           </div>
-          <div className="mt-1 font-serifDisplay text-lg italic text-textPrimary">
+          <div className="mt-1 font-serifDisplay text-xl italic text-textPrimary">
             Your learning landscape
           </div>
         </div>
@@ -102,7 +102,7 @@ export function TopicMindmap({ summary, sessions }: TopicMindmapProps) {
           const insights = calculateTopicInsights(topicName, summary, sessions);
           const mastery = masteryEntry.p_mastery;
           const slug = slugifyTopic(topicName);
-
+          
           return (
             <motion.div key={topicName} variants={item}>
               <Link to={`/dashboard/topic/${slug}`}>
@@ -118,19 +118,19 @@ export function TopicMindmap({ summary, sessions }: TopicMindmapProps) {
                   {/* Mastery progress bar */}
                   <div className="mb-6">
                     <div className="h-2 w-full overflow-hidden rounded-full glass-strong">
-                      <motion.div
-                        className="h-full bg-gradient-to-r from-accentViolet to-accentMint"
-                        initial={{ width: 0 }}
-                        animate={{ width: `${mastery * 100}%` }}
+                          <motion.div
+                        className="h-full bg-gradient-to-r from-gray-600 via-gray-400 to-gray-200"
+                            initial={{ width: 0 }}
+                            animate={{ width: `${mastery * 100}%` }}
                         transition={{ duration: 1, ease: 'easeOut' }}
-                      />
+                          />
                     </div>
                   </div>
 
                   {/* Insights */}
                   <div className="space-y-3">
                     {/* Technique that helps */}
-                    <div className="rounded-lg glass border border-accentViolet/30 bg-accentViolet/10 p-3">
+                    <div className="rounded-lg glass border border-white/12 bg-white/5 p-3">
                       <div className="mb-1 text-[10px] font-medium uppercase tracking-wider text-textFaint">
                         Technique that helps
                       </div>
@@ -138,13 +138,7 @@ export function TopicMindmap({ summary, sessions }: TopicMindmapProps) {
                     </div>
 
                     {/* What's not working */}
-                    <div 
-                      className="rounded-lg glass border p-3"
-                      style={{
-                        borderColor: 'rgba(224, 96, 96, 0.3)',
-                        backgroundColor: 'rgba(224, 96, 96, 0.1)',
-                      }}
-                    >
+                    <div className="rounded-lg glass border border-white/15 bg-white/5 p-3">
                       <div className="mb-1 text-[10px] font-medium uppercase tracking-wider text-textFaint">
                         What&apos;s not working
                       </div>
@@ -152,7 +146,7 @@ export function TopicMindmap({ summary, sessions }: TopicMindmapProps) {
                     </div>
 
                     {/* What you can work on */}
-                    <div className="rounded-lg glass border border-accentAmber/30 bg-accentAmber/10 p-3">
+                    <div className="rounded-lg glass border border-white/10 bg-white/3 p-3">
                       <div className="mb-1 text-[10px] font-medium uppercase tracking-wider text-textFaint">
                         What you can work on
                       </div>

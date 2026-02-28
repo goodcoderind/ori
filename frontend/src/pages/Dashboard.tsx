@@ -1,5 +1,3 @@
-import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useDashboard } from '../hooks/useDashboard';
 import { Spinner } from '../components/ui/Spinner';
@@ -16,165 +14,157 @@ import { LearnerDNA } from '../components/dashboard/LearnerDNA';
 import { UpcomingReviews } from '../components/dashboard/UpcomingReviews';
 import { SessionList } from '../components/dashboard/SessionList';
 
-function scrollWithinDashboard(sectionId?: string) {
-  const container = document.getElementById('app-main-scroll');
-  if (!container) return;
-
-  if (!sectionId) {
-    container.scrollTo({ top: 0, behavior: 'smooth' });
-    return;
-  }
-
-  const target = document.getElementById(sectionId);
-  if (!target) return;
-
-  const containerRect = container.getBoundingClientRect();
-  const targetRect = target.getBoundingClientRect();
-  const offset = targetRect.top - containerRect.top + container.scrollTop - 16;
-
-  container.scrollTo({ top: offset, behavior: 'smooth' });
-}
-
 export function Dashboard() {
   const { summary, sessions, loading, error, refetch } = useDashboard();
-  const location = useLocation();
-
-  useEffect(() => {
-    const state = location.state as { scrollTo?: string } | null;
-    if (!summary || !state?.scrollTo) return;
-    // scroll after layout has rendered
-    const handle = window.requestAnimationFrame(() => {
-      scrollWithinDashboard(state.scrollTo);
-    });
-    return () => window.cancelAnimationFrame(handle);
-  }, [location.state, summary]);
 
   if (error) {
     return (
-      <ErrorCard
-        message={error}
-        onRetry={refetch}
-      />
+      <div className="min-h-screen flex items-center justify-center p-8">
+        <ErrorCard
+          message={error}
+          onRetry={refetch}
+        />
+      </div>
     );
   }
 
   if (loading && !summary) {
-    return <Spinner />;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Spinner />
+      </div>
+    );
   }
 
   if (!summary) {
-    return <EmptyState />;
+    return (
+      <div className="min-h-screen flex items-center justify-center p-8">
+        <EmptyState />
+      </div>
+    );
   }
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}
-      className="space-y-8 pb-12"
+      className="w-full"
     >
-      {/* Section 1: Hero Strip */}
-      <HeroStrip summary={summary} sessions={sessions} />
-
-      {/* Section 2: Focus Rhythm - THE CENTERPIECE */}
-      <FocusRhythmChart summary={summary} sessions={sessions} />
-
-      {/* Section 3: Two-Column Row - Calendar + Time of Day */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[60%_40%]">
-        <CalendarHeatmap sessions={sessions} />
-        <FocusHeatmap summary={summary} />
-      </div>
-
-      {/* Section 4: Three-Column Row - State Distribution + Day of Week + Focus Depth */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <FocusDonut summary={summary} />
-        <div className="relative">
-          {/* Day of Week Heatmap - placeholder for now */}
-          <div className="glass rounded-2xl p-6">
-            <div className="text-xs font-medium uppercase tracking-[0.16em] text-textMuted">
-              Day of Week
-            </div>
-            <div className="mt-4 space-y-2">
-              {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, i) => {
-                const score = 0.4 + (i === 2 ? 0.3 : 0) - (i === 4 ? 0.2 : 0); // Mock data
-                return (
-                  <div key={day} className="flex items-center gap-3">
-                    <div className="w-16 text-xs text-textMuted">{day}</div>
-                    <div className="flex-1">
-                      <div
-                        className="h-6 rounded"
-                        style={{
-                          width: `${score * 100}%`,
-                          backgroundColor: score > 0.7 ? '#52C99A' : score > 0.5 ? '#7C6EF5' : '#F0A55A',
-                          opacity: 0.6 + score * 0.4,
-                        }}
-                      />
-                    </div>
-                    {i === 2 && <span className="text-xs">👑</span>}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+      {/* Bento Grid Layout */}
+      <div className="grid grid-cols-12 grid-rows-[auto_auto_auto_auto] gap-2 lg:gap-3">
+        
+        {/* Row 1: Hero Stats - Full Width */}
+        <div className="col-span-12">
+          <HeroStrip summary={summary} sessions={sessions} />
         </div>
-        <div className="relative">
-          {/* Focus Depth Gauge - placeholder */}
-          <div className="glass rounded-2xl p-6">
-            <div className="text-xs font-medium uppercase tracking-[0.16em] text-textMuted">
-              Focus Depth
-            </div>
-            <div className="mt-4 flex items-center justify-center">
-              <div className="relative h-32 w-32">
-                <svg className="h-32 w-32 -rotate-90 transform">
-                  <circle
-                    cx="64"
-                    cy="64"
-                    r="56"
-                    fill="none"
-                    stroke="#26263A"
-                    strokeWidth="8"
-                  />
-                  <circle
-                    cx="64"
-                    cy="64"
-                    r="56"
-                    fill="none"
-                    stroke="#52C99A"
-                    strokeWidth="8"
-                    strokeDasharray={`${2 * Math.PI * 56 * 0.78} ${2 * Math.PI * 56}`}
-                    strokeLinecap="round"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="font-monoData text-2xl font-medium text-textPrimary">78</span>
-                </div>
-              </div>
-            </div>
-            <div className="mt-2 text-center text-xs text-textMuted">
-              Above 78% of learners
-            </div>
+
+        {/* Row 2: Left side + Center Panda + Right side */}
+        {/* Focus Rhythm - Large left card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="col-span-12 lg:col-span-5 bento-cell bento-cell-indigo p-4"
+        >
+          <FocusRhythmChart summary={summary} sessions={sessions} />
+        </motion.div>
+
+        {/* Center Panda Placeholder */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="col-span-12 lg:col-span-2 panda-placeholder min-h-[300px] lg:min-h-[400px]"
+        >
+          <div className="text-center">
+            <div className="text-4xl mb-2">🐼</div>
+            <div className="text-sm font-medium">Panda Placeholder</div>
           </div>
-        </div>
-      </div>
+        </motion.div>
 
-      {/* Techniques - full width with better visual hierarchy */}
-      <div className="relative">
-        <div className="absolute -left-8 top-0 h-full w-px bg-gradient-to-b from-transparent via-accentAmber/20 to-transparent" />
-        <TechniqueTable summary={summary} />
-      </div>
+        {/* Calendar Heatmap - Right side */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.15 }}
+          className="col-span-12 lg:col-span-5 bento-cell bento-cell-teal p-4"
+        >
+          <CalendarHeatmap sessions={sessions} />
+        </motion.div>
 
-      {/* Topics Mindmap - the star of the show */}
-      <TopicMindmap summary={summary} sessions={sessions} />
+        {/* Row 3: Multiple smaller cards */}
+        {/* Focus Donut */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="col-span-12 md:col-span-6 lg:col-span-4 bento-cell bento-cell-purple p-4"
+        >
+          <FocusDonut summary={summary} />
+        </motion.div>
 
-      {/* Section 7: Learner DNA */}
-      <LearnerDNA summary={summary} sessions={sessions} />
+        {/* Focus Heatmap */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.25 }}
+          className="col-span-12 md:col-span-6 lg:col-span-4 bento-cell bento-cell-blue p-4"
+        >
+          <FocusHeatmap summary={summary} />
+        </motion.div>
 
-      {/* Reviews and Sessions - side by side */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2" id="sessions">
-        <UpcomingReviews summary={summary} />
-        <SessionList sessions={sessions} />
+        {/* Upcoming Reviews */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="col-span-12 lg:col-span-4 bento-cell bento-cell-amber p-4"
+        >
+          <UpcomingReviews summary={summary} />
+        </motion.div>
+
+        {/* Row 4: Techniques - Wide card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.35 }}
+          className="col-span-12 lg:col-span-8 bento-cell bento-cell-indigo p-4"
+        >
+          <TechniqueTable summary={summary} />
+        </motion.div>
+
+        {/* Session List - Smaller card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="col-span-12 lg:col-span-4 bento-cell bento-cell-mint p-4"
+        >
+          <SessionList sessions={sessions} />
+        </motion.div>
+
+        {/* Row 5: Topics - Full width */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.45 }}
+          className="col-span-12 bento-cell bento-cell-purple p-4"
+        >
+          <TopicMindmap summary={summary} sessions={sessions} />
+        </motion.div>
+
+        {/* Row 6: Learner DNA - Full width */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+          className="col-span-12 bento-cell bento-cell-teal p-4"
+        >
+          <LearnerDNA summary={summary} sessions={sessions} />
+        </motion.div>
+
       </div>
     </motion.div>
   );
 }
-
