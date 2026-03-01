@@ -291,7 +291,7 @@ Five undergrads from Mohammed bin Zayed University of Artificial Intelligence (M
 
 ## Demo
 
-📹 [Watch the 2-minute demo](#) *(link coming soon)*
+📹 [Watch the 2-minute demo](https://youtu.be/-s9hL-cPHy0)
 
 ---
 
